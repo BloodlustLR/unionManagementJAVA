@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.eu.mapper.UserMapper" >
+
+    <resultMap id="userMap" type="org.eu.entity.User">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="role" column="role"/>
+        <result property="gameId" column="game_id"/>
+        <result property="union" column="union"/>
+        <result property="shortArmy" column="short_army"/>
+        <result property="army" column="army"/>
+    </resultMap>
+
+    <insert id="insertUser" useGeneratedKeys="true" keyProperty="id" parameterType="org.eu.entity.User">
+        INSERT INTO `user` ( username, PASSWORD )
+        VALUES
+            (#{username},#{password});
+    </insert>
+
+    <select id="login" resultType="org.eu.entity.User">
+        SELECT
+            u.id,
+            u.username,
+            u.`password`,
+            ui.game_id,
+            a.short_name AS short_army,
+            a.`name` AS army,
+            un.`name` AS `union`,
+            r.name AS role
+        FROM
+            `user` u
+                LEFT JOIN user_info ui ON u.id = ui.user_id
+                LEFT JOIN army a ON a.id = ui.army_id
+                LEFT JOIN `union` un ON un.id = a.union_id
+                LEFT JOIN user_role ur ON ur.user_id = u.id
+                LEFT JOIN `role` r ON r.id = ur.role_id
+        WHERE
+            u.username = #{username}
+          AND u.`password` = #{password}
+          AND
+            u.state = 'A'
+    </select>
+</mapper>
