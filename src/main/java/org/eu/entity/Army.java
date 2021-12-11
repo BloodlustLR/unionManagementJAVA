@@ -17,9 +17,8 @@ public class Army {
 
     private String shortName;
 
-    private String state;
+    private Integer unionId;
 
-    @TableField(exist=false)
-    private Union union;
+    private String state;
 
 }
