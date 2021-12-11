@@ -10,6 +10,7 @@
             <id property="id" column="id"/>
             <result property="name" column="name"/>
             <result property="shortName" column="short_name"/>
+            <result property="unionId" column="union_id"/>
         </collection>
     </resultMap>
 

@@ -10,6 +10,7 @@ import org.eu.util.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -21,6 +22,15 @@ public class UnionController {
 
     @Autowired
     ArmyService armyService;
+
+    @GetMapping("/getAllUnion")
+    public List<Union> getAllUnion(){
+        List<Union> unionList = new ArrayList<>();
+        QueryWrapper<Union> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("state","A");
+        unionList = unionService.list(queryWrapper);
+        return unionList;
+    }
 
     @GetMapping("/getAllUnionArmy")
     public List<Union> getAllUnionArmy(){
@@ -35,6 +45,19 @@ public class UnionController {
         union.setName(strj.getString("name"));
 
         Boolean result = unionService.save(union);
+
+        return ResponseUtil.success(result?"success":"fail");
+    }
+
+    @PostMapping("/configUnion")
+    public String configUnion(@RequestBody String str){
+        JSONObject strj = JSONObject.parseObject(str);
+
+        Union union = new Union();
+        union.setId(strj.getInteger("unionId"));
+        union.setName(strj.getString("name"));
+
+        Boolean result = unionService.updateById(union);
 
         return ResponseUtil.success(result?"success":"fail");
     }

@@ -6,7 +6,8 @@
         SELECT
             id,
             `name`,
-            short_name
+            short_name,
+            union_id
         FROM
             army
         WHERE

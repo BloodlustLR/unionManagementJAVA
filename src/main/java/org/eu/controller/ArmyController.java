@@ -42,6 +42,21 @@ public class ArmyController {
         return ResponseUtil.success(result?"success":"fail");
     }
 
+    @PostMapping("/configArmy")
+    public String configArmy(@RequestBody String str){
+        JSONObject strj = JSONObject.parseObject(str);
+
+        Army army = new Army();
+        army.setId(strj.getInteger("armyId"));
+        army.setUnionId(strj.getInteger("unionId"));
+        army.setName(strj.getString("name"));
+        army.setShortName(strj.getString("shortName"));
+
+        Boolean result = armyService.updateById(army);
+
+        return ResponseUtil.success(result?"success":"fail");
+    }
+
     @PostMapping("/removeArmy")
     public String removeArmy(@RequestBody String str){
         JSONObject strj = JSONObject.parseObject(str);

@@ -32,8 +32,8 @@
         FROM
             `user` u
                 LEFT JOIN user_info ui ON u.id = ui.user_id
-                LEFT JOIN army a ON a.id = ui.army_id
-                LEFT JOIN `union` un ON un.id = a.union_id
+                LEFT JOIN army a ON a.id = ui.army_id AND a.state = 'A'
+                LEFT JOIN `union` un ON un.id = a.union_id AND un.state = 'A'
                 LEFT JOIN user_role ur ON ur.user_id = u.id
                 LEFT JOIN `role` r ON r.id = ur.role_id
         WHERE
