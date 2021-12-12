@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.eu.mapper.StandardPaymentShipMapper" >
+
+
+    <select id="listRelationShip" resultType="org.eu.entity.Ship">
+        SELECT
+            s.id,
+            s.`name`
+        FROM
+            standard_payment_ship sps
+                LEFT JOIN  ship s ON s.id = sps.ship_id
+        WHERE
+            s.state = 'A'
+          AND
+            sps.state = 'A'
+          AND
+            sps.standard_payment_id = #{id}
+    </select>
+
+</mapper>

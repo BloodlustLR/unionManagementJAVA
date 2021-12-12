@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.eu.mapper.ShipMapper" >
+
+    <resultMap id="baseResultMap" type="org.eu.entity.Ship">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="type" column="type"/>
+        <result property="level" column="level"/>
+        <result property="state" column="state"/>
+    </resultMap>
+
+    <resultMap id="treeResultMap" type="org.eu.entity.shipTree.TreeType">
+        <result property="label" column="label"/>
+        <collection property="children" ofType="org.eu.entity.shipTree.TreeLevel" select="listShipTreeLevel" column="label">
+            <result property="label" column="label"/>
+        </collection>
+    </resultMap>
+
+    <resultMap id="treeLevelResultMap" type="org.eu.entity.shipTree.TreeLevel">
+        <result property="type" column="type"/>
+        <result property="label" column="label"/>
+        <collection property="children" ofType="org.eu.entity.shipTree.TreeShip" select="listShipTreeShip" column="{label=label,type=type}">
+            <id property="id" column="id"/>
+            <result property="label" column="label"/>
+        </collection>
+    </resultMap>
+
+    <resultMap id="treeShipResultMap" type="org.eu.entity.shipTree.TreeShip">
+        <id property="id" column="id"/>
+        <result property="label" column="label"/>
+    </resultMap>
+
+    <select id="pageShip" resultMap="baseResultMap">
+        SELECT
+            id,
+            `name`,
+            type,
+            `level`,
+            state
+        FROM
+            ship
+        WHERE
+            state = 'A'
+        <if test="ship.type != null">
+        AND
+            type = #{ship.type}
+        </if>
+        <if test="ship.level != null">
+            AND
+            `level` = #{ship.level}
+        </if>
+    </select>
+
+    <select id="listShipTree" resultMap="treeResultMap">
+        SELECT DISTINCT
+            `type` AS label
+        FROM
+            `ship`
+        WHERE
+            state = 'A'
+    </select>
+
+    <select id="listShipTreeLevel" resultMap="treeLevelResultMap">
+        SELECT DISTINCT
+            type,
+            `level` AS label
+        FROM
+            `ship`
+        WHERE
+            state = 'A'
+        AND
+            type = #{label}
+        ORDER BY `level`
+    </select>
+
+    <select id="listShipTreeShip" resultMap="treeShipResultMap">
+        SELECT
+            id,
+            name AS label
+        FROM
+            `ship`
+        WHERE
+            state = 'A'
+        AND
+            `level` = #{label}
+        AND
+            type = #{type}
+    </select>
+
+
+</mapper>
