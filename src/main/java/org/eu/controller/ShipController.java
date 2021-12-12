@@ -89,9 +89,9 @@ public class ShipController {
 
         Integer shipId = strj.getInteger("shipId");
 
-        QueryWrapper<StandardPaymentShip> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("ship_id",shipId);
-        standardPaymentShipService.remove(queryWrapper);
+//        QueryWrapper<StandardPaymentShip> queryWrapper = new QueryWrapper<>();
+//        queryWrapper.eq("ship_id",shipId);
+//        standardPaymentShipService.remove(queryWrapper);
 
         Boolean flag = shipService.removeById(shipId);
 

@@ -70,4 +70,15 @@ public class StandardPaymentController {
         return ResponseUtil.success(result?"success":"fail");
     }
 
+    @PostMapping("/removeStandardPayment")
+    public String removeStandardPayment(@RequestBody String str){
+        JSONObject strj = JSONObject.parseObject(str);
+
+        Integer standardId = strj.getInteger("id");
+
+        Boolean flag = standardPaymentService.removeById(standardId);
+
+        return ResponseUtil.success(flag?"success":"fail");
+    }
+
 }

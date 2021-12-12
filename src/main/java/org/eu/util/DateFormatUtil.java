@@ -82,6 +82,32 @@ public class DateFormatUtil {
 	 * @param time iView的DatePicker控件UTC时间
 	 * @return 北京时间的Date类型
 	 */
+	public static Date parseBeiJingDateByUTC(String time) {
+		Date date = null;
+		try {
+			date = formatUTC.parse(time);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		// 使用默认时区和语言环境获得一个日历
+		Calendar calendar = Calendar.getInstance();
+		// 使用给定的 Date 设置此 Calendar 的时间
+		assert date != null;
+		calendar.setTime(date);
+		// void set(int field, int value) 将给定的日历字段设置为给定值
+		// int get(int field)返回给定日历字段的值
+		// 北京时间比格林尼治时间（世界时）早8小时，即：北京时间=世界时+8小时。
+		calendar.set(Calendar.HOUR, calendar.get(Calendar.HOUR) + 8);
+		// calendar.getTime() 返回的是Date类型，也可以使用calendar.getTimeInMillis()获取时间戳
+		return calendar.getTime();
+	}
+
+	/**
+	 * UTC时间转换成北京时间 iView的DatePicker控件时间为UTC时间，比北京时间少8小时
+	 *
+	 * @param time iView的DatePicker控件UTC时间
+	 * @return 北京时间的Date类型
+	 */
 	public static Date parseDateByUTC(String time) {
 		Date date = null;
 		try {

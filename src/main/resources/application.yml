@@ -66,5 +66,10 @@ mybatis-plus:
 logging:
   config: classpath:logback-spring.xml
 
+ocr:
+  language: chi_sim
+  data-path: D:/OCR/chineseData
+
+
 
 

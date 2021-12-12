@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.eu.mapper.PaymentMapper" >
+
+    <resultMap id="baseResultMap" type="org.eu.entity.Payment">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="lossStartTime" column="loss_start_time"/>
+        <result property="lossEndTime" column="loss_end_time"/>
+        <result property="limitArea" column="limit_area"/>
+        <result property="limitConstellation" column="limit_constellation"/>
+        <result property="limitGalaxy" column="limit_galaxy"/>
+        <result property="endTime" column="end_time"/>
+        <result property="state" column="state"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <insert id="insertPayment" useGeneratedKeys="true" keyProperty="id" parameterType="org.eu.entity.Payment">
+        INSERT INTO payment ( `name`, loss_start_time, loss_end_time, limit_area, limit_constellation, limit_galaxy, end_time )
+        VALUES
+            (#{name},#{lossStartTime},#{lossEndTime},#{limitArea},#{limitConstellation},#{limitGalaxy},#{endTime});
+    </insert>
+
+    <select id="pagePayment" resultMap="baseResultMap">
+        SELECT
+        id,
+        `name`,
+        end_time,
+        create_time
+        FROM
+        payment
+        WHERE
+        state = 'A'
+        <if test="startDate != null">
+            AND
+            create_time &gt;= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND
+            create_time &lt;= #{endDate}
+        </if>
+    </select>
+</mapper>
