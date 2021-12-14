@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/ocr")
@@ -22,9 +23,9 @@ public class OCRController {
 
 
     @PostMapping("/detectPic")
-    public String detectPic(@RequestParam("file") MultipartFile multipartFile) throws IOException {
+    public Map<String,String> detectPic(@RequestParam("file") MultipartFile multipartFile) throws IOException {
 
-        return ResponseUtil.success(ocrService.detectPic(multipartFile));
+        return ocrService.detectPic(multipartFile);
     }
 
 

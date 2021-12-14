@@ -91,6 +91,34 @@ public class FileUtil {
 		return base64EncoderImg;
 	}
 
+	//MultipartFile图片转base64(去掉图片头)
+	public static String multipartFileToBase64WithoutHeader(MultipartFile file){
+		if (file == null || file.isEmpty()) {
+			throw new RuntimeException("图片不能为空！");
+		}
+		String fileName = file.getOriginalFilename();
+		String fileType = fileName.substring(fileName.lastIndexOf("."));
+		String contentType = file.getContentType();
+		byte[] imageBytes = null;
+		String base64EncoderImg="";
+		try {
+			imageBytes = file.getBytes();
+			BASE64Encoder base64Encoder =new BASE64Encoder();
+			/**
+			 * 1.Java使用BASE64Encoder 需要添加图片头（"data:" + contentType + ";base64,"），
+			 *   其中contentType是文件的内容格式。
+			 * 2.Java中在使用BASE64Enconder().encode()会出现字符串换行问题，这是因为RFC 822中规定，
+			 *   每72个字符中加一个换行符号，这样会造成在使用base64字符串时出现问题，
+			 *   所以我们在使用时要先用replaceAll("[\\s*\t\n\r]", "")解决换行的问题。
+			 */
+			base64EncoderImg = base64Encoder.encode(imageBytes);
+			base64EncoderImg = base64EncoderImg.replaceAll("[\\s*\t\n\r]", "");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return base64EncoderImg;
+	}
+
 	/**
 	 * 删除本地临时文件
 	 * @param filePath

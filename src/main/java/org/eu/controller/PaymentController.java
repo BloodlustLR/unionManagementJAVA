@@ -50,6 +50,11 @@ public class PaymentController {
         return paymentService.pagePayment(page,startDate,endDate);
     }
 
+    @GetMapping("/getPaymentInfo")
+    public Payment getPaymentInfo(@RequestParam("pid") Integer pid){
+        return paymentService.getById(pid);
+    }
+
     @PostMapping("/addPayment")
     public String addPayment(@RequestBody String str){
         JSONObject strj = JSONObject.parseObject(str);

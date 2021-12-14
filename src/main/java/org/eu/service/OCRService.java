@@ -4,9 +4,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 public interface OCRService {
 
-    String detectPic(MultipartFile multipartFile) throws IOException;
+    Map<String,String> detectPic(MultipartFile multipartFile) throws IOException;
 
 }
