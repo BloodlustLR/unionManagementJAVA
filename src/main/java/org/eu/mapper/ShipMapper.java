@@ -14,6 +14,7 @@ public interface ShipMapper extends BaseMapper<Ship> {
 
     IPage<Ship> pageShip(Page<?> page,Ship ship);
 
+    Ship selectShipByName(String name);
 
     List<TreeType> listShipTree();
 }

@@ -12,5 +12,7 @@ public interface ShipService extends IService<Ship> {
 
     IPage<Ship> pageShip(Page<Ship> page,Ship ship);
 
+    Ship findShipByName(String shipName);
+
     List<TreeType> getShipTree();
 }

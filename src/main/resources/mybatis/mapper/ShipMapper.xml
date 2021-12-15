@@ -87,6 +87,19 @@
         AND
             type = #{type}
     </select>
+    <select id="selectShipByName" resultMap="baseResultMap">
+        SELECT
+            id,
+            `name`,
+            type,
+            `level`
+        FROM
+            ship
+        WHERE
+            state = 'A'
+          AND
+            `name` = #{shipName}
+    </select>
 
 
 </mapper>

@@ -25,6 +25,11 @@ public class ShipServiceImpl extends ServiceImpl<ShipMapper, Ship> implements Sh
     }
 
     @Override
+    public Ship findShipByName(String shipName) {
+        return shipMapper.selectShipByName(shipName);
+    }
+
+    @Override
     public List<TreeType> getShipTree() {
         return shipMapper.listShipTree();
     }

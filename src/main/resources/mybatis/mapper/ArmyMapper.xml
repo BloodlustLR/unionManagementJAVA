@@ -14,4 +14,18 @@
             state = 'A'
           AND union_id = #{unionId}
     </select>
+
+    <select id="selectArmyByGameId" resultType="org.eu.entity.Army">
+        SELECT
+            a.id,
+            a.short_name,
+            a.`name`
+        FROM
+            user_info ui
+                LEFT JOIN army a ON ui.army_id = a.id
+        WHERE
+            a.state = 'A'
+          AND ui.state = 'A'
+          AND ui.game_id = #{gameId}
+    </select>
 </mapper>

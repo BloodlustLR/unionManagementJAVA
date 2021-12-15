@@ -12,4 +12,5 @@ public interface ArmyMapper extends BaseMapper<Army> {
 
     List<Army> listArmyByUnionId(Integer unionId);
 
+    void selectArmyByGameId(String gameId);
 }

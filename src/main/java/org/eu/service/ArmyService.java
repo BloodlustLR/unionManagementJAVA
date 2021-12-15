@@ -6,6 +6,6 @@ import org.eu.entity.User;
 
 public interface ArmyService  extends IService<Army> {
 
-
+    public Army getArmyByGameId(String gameId);
 
 }
