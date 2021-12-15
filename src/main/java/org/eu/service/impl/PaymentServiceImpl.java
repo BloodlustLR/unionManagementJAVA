@@ -48,4 +48,9 @@ public class PaymentServiceImpl extends ServiceImpl<PaymentMapper, Payment> impl
         return flag?"success":"fail";
     }
 
+    @Override
+    public List<Ship> listPaymentShip(Integer paymentId) {
+        return paymentMapper.listPaymentShip(paymentId);
+    }
+
 }

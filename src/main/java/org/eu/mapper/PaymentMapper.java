@@ -7,10 +7,14 @@ import org.apache.ibatis.annotations.Mapper;
 import org.eu.entity.Payment;
 import org.eu.entity.Ship;
 
+import java.util.List;
+
 @Mapper
 public interface PaymentMapper extends BaseMapper<Payment> {
 
     IPage<Payment> pagePayment(Page<Payment> page,String startDate,String endDate);
 
     void insertPayment(Payment payment);
+
+    List<Ship> listPaymentShip(Integer paymentId);
 }

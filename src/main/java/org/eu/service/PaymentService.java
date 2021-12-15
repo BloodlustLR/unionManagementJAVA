@@ -14,4 +14,6 @@ public interface PaymentService extends IService<Payment> {
     IPage<Payment> pagePayment(Page<Payment> page,String startDate,String endDate);
 
     String addPayment(Payment payment, List<Integer> standardList);
+
+    List<Ship> listPaymentShip(Integer paymentId);
 }
