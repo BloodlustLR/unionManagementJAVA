@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.eu.mapper.LossMapper" >
+
+    <select id="getPaymentArmyLoss" resultType="org.eu.entity.Loss">
+        SELECT
+            l.id,
+            s.name AS shipName,
+            l.area,
+            l.constellation,
+            l.galaxy,
+            l.num,
+            l.loss_time AS lossTime,
+            l.km_ship AS kmShip,
+            l.high_atk_ship AS highAtkShip,
+            l.img
+        FROM
+            loss l
+                LEFT JOIN ship s ON s.id = l.ship_id
+        WHERE
+            l.state = 'A'
+          AND l.payment_id = #{paymentId}
+          AND l.army_id = #{armyId}
+    </select>
+
+    <select id="getPaymentAllArmyLoss" resultType="org.eu.entity.Loss">
+        SELECT
+            l.army_id AS armyId,
+            a.`name` AS armyName,
+            a.short_name AS armyShortName,
+            l.num
+        FROM
+            loss l
+                LEFT JOIN army a ON a.id = l.army_id
+        WHERE
+            l.state = 'A'
+          AND l.payment_id = #{pid}
+    </select>
+    <select id="getPaymentAllShipLoss" resultType="org.eu.entity.Loss">
+        SELECT
+            l.ship_id AS shipId,
+            s.`name` AS shipName,
+            s.type AS shipType,
+            l.num
+        FROM
+            loss l
+            LEFT JOIN ship s ON s.id = l.ship_id
+        WHERE
+            l.state = 'A'
+          AND l.payment_id = #{pid}
+    </select>
+</mapper>
