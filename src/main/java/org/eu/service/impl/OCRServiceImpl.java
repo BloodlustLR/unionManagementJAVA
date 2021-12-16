@@ -6,6 +6,7 @@ import org.apache.http.client.config.RequestConfig;
 import org.eu.config.SystemConfig;
 import org.eu.service.OCRService;
 import org.eu.util.FileUtil;
+import org.eu.util.HttpClientUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,10 +20,7 @@ import sun.misc.BASE64Encoder;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.List;
@@ -62,7 +60,6 @@ public class OCRServiceImpl implements OCRService {
                 bufferedImage.getHeight(), BufferedImage.TYPE_INT_RGB);
 
         //TYPE_INT_RGB:创建一个RBG图像，24位深度，成功将32位图转化成24位
-
         newBufferedImage.createGraphics().drawImage(bufferedImage, 0, 0, Color.WHITE, null);
 
         // write to jpeg file
@@ -70,17 +67,17 @@ public class OCRServiceImpl implements OCRService {
         String jpgPath = savePath+jpgName;
         System.out.println(jpgPath);
         ImageIO.write(newBufferedImage, "jpg", new File(jpgPath));
-//        FileUtil.deleteTempFile(filePath);
+        FileUtil.deleteTempFile(filePath);
         String fileUrl = host+"/api/upload/"+jpgName;
 
-//        String ocrData = BaiduOCRWebApi(SystemConfig.ACCESS_TOKEN,fileUrl);
-        File jpgFile = new File(jpgPath);
-        byte[] bytes = FileUtil.fileConvertToByteArray(jpgFile);
-        BASE64Encoder base64Encoder =new BASE64Encoder();
-        String base64EncoderImg = base64Encoder.encode(bytes);
-        base64EncoderImg = base64EncoderImg.replaceAll("[\\s*\t\n\r]", "");
-        String urlEncoded = URLEncoder.encode(base64EncoderImg, "utf-8");
-        String ocrData = BaiduOCRApi(SystemConfig.ACCESS_TOKEN,urlEncoded);
+        String ocrData = BaiduOCRWebApi(SystemConfig.ACCESS_TOKEN,fileUrl);
+//        File jpgFile = new File(jpgPath);
+//        byte[] bytes = FileUtil.fileConvertToByteArray(jpgFile);
+//        BASE64Encoder base64Encoder =new BASE64Encoder();
+//        String base64EncoderImg = base64Encoder.encode(bytes);
+//        base64EncoderImg = base64EncoderImg.replaceAll("[\\s*\t\n\r]", "");
+//        String urlEncoded = URLEncoder.encode(base64EncoderImg, "utf-8");
+//        String ocrData = BaiduOCRApi(SystemConfig.ACCESS_TOKEN,base64EncoderImg);
 
         resultMap.put("img","/api/upload/"+jpgName);
 
@@ -121,66 +118,84 @@ public class OCRServiceImpl implements OCRService {
 //        }
 //    }
 
+    private String BaiduOCRApi(String accessToken, String base64Pic) throws UnsupportedEncodingException {
 
-    private String BaiduOCRApi(String accessToken, String base64Pic){
+//        String path = "https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic";
+//        ApiExplorerRequest request = new ApiExplorerRequest(HttpMethodName.POST, path);
+//
+//
+//        // 设置header参数
+//        request.addHeaderParameter("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+//
+//        // 设置query参数
+//        request.addQueryParameter("access_token", accessToken);
+//
+//
+//        // 设置jsonBody参数
+//        String jsonBody = "image="+base64Pic;
+//        request.setJsonBody(jsonBody);
+//
+//        ApiExplorerClient client = new ApiExplorerClient();
+//
+//        String result = null;
+//        try {
+//            ApiExplorerResponse response = client.sendRequest(request);
+//            // 返回结果格式为Json字符串
+//            result = response.getResult();
+//            System.out.println("Res:"+result);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+        String path = "https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic?access_token="+accessToken;
 
-        String path = "https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic";
-//        String path = "https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic";
-        ApiExplorerRequest request = new ApiExplorerRequest(HttpMethodName.POST, path);
+        Map<String,String> bodyMap = new HashMap<>();
+        bodyMap.put("image",base64Pic);
 
-
-        // 设置header参数
-        request.addHeaderParameter("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
-
-        // 设置query参数
-        request.addQueryParameter("access_token", accessToken);
-
-
-        // 设置jsonBody参数
-        String jsonBody = "image="+base64Pic;
-        request.setJsonBody(jsonBody);
-
-        ApiExplorerClient client = new ApiExplorerClient();
-
-        String result = null;
-        try {
-            ApiExplorerResponse response = client.sendRequest(request);
-            // 返回结果格式为Json字符串
-            result = response.getResult();
-            System.out.println("Res:"+result);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        String result = HttpClientUtils.postUrlencoded(path,bodyMap);
+        System.out.println("Res:"+result);
         return result;
     }
 
-    private String BaiduOCRWebApi(String accessToken, String picUrl){
 
-        String path = "https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic";
-        ApiExplorerRequest request = new ApiExplorerRequest(HttpMethodName.POST, path);
+    private String BaiduOCRWebApi(String accessToken, String picUrl) throws UnsupportedEncodingException {
 
-        // 设置header参数
-        request.addHeaderParameter("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+//        String path = "https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic";
+//        ApiExplorerRequest request = new ApiExplorerRequest(HttpMethodName.POST, path);
+//
+//        // 设置header参数
+//        request.addHeaderParameter("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+//
+//        // 设置query参数
+//        request.addQueryParameter("access_token", accessToken);
+//
+//
+//        // 设置jsonBody参数
+//        String jsonBody = "url="+picUrl+"&language_type=CHN_ENG&detect_direction=false&paragraph=false&probability=false";
+//        request.setJsonBody(jsonBody);
+//
+//        ApiExplorerClient client = new ApiExplorerClient();
+//
+//        String result = null;
+//        try {
+//            ApiExplorerResponse response = client.sendRequest(request);
+//            // 返回结果格式为Json字符串
+//            result = response.getResult();
+//            System.out.println("Res:"+result);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+        String path = "https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic?access_token="+accessToken;
 
-        // 设置query参数
-        request.addQueryParameter("access_token", accessToken);
+        Map<String,String> bodyMap = new HashMap<>();
+        System.out.println("url-"+picUrl);
+        bodyMap.put("url",picUrl);
+        bodyMap.put("language_type","CHN_ENG");
+        bodyMap.put("detect_direction","false");
+        bodyMap.put("paragraph","false");
+        bodyMap.put("probability","false");
 
-
-        // 设置jsonBody参数
-        String jsonBody = "url="+picUrl+"&language_type=CHN_ENG&detect_direction=false&paragraph=false&probability=false";
-        request.setJsonBody(jsonBody);
-
-        ApiExplorerClient client = new ApiExplorerClient();
-
-        String result = null;
-        try {
-            ApiExplorerResponse response = client.sendRequest(request);
-            // 返回结果格式为Json字符串
-            result = response.getResult();
-            System.out.println("Res:"+result);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        String result = HttpClientUtils.postUrlencoded(path,bodyMap);
+        System.out.println("Res:"+result);
         return result;
     }
 
@@ -374,6 +389,5 @@ public class OCRServiceImpl implements OCRService {
 
         return sb.toString();
     }
-
 
 }
