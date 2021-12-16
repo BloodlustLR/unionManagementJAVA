@@ -18,6 +18,8 @@ public class Ship {
 
     private Integer level;
 
+    private Long price;
+
     private String state;
 
 }

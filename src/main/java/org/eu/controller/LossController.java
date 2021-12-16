@@ -10,11 +10,9 @@ import org.eu.service.ArmyService;
 import org.eu.service.LossService;
 import org.eu.service.PaymentService;
 import org.eu.service.ShipService;
+import org.eu.util.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -107,13 +105,43 @@ public class LossController {
             loss.setConstellation(valueStrj.getString("constellation"));
             loss.setGalaxy(valueStrj.getString("galaxy"));
             loss.setNum(valueStrj.getLong("money"));
-            loss.setKmShip("kmShip");
-            loss.setHighAtkShip("highATKShip");
+            loss.setKmShip(valueStrj.getString("kmShip"));
+            loss.setHighAtkShip(valueStrj.getString("highATKShip"));
             loss.setImg(valueStrj.getString("img"));
             lossService.saveOrUpdate(loss);
         }
-
         return resultMap;
+    }
+
+
+    @PostMapping("/getPaymentArmyLoss")
+    public List<Loss> getPaymentArmyLoss(@RequestBody String str){
+        JSONObject strj = JSONObject.parseObject(str);
+
+        Integer armyId = strj.getInteger("armyId");
+        Integer paymentId = strj.getInteger("paymentId");
+        return lossService.getPaymentArmyLoss(paymentId,armyId);
+    }
+
+    @GetMapping("/getPaymentAllArmyLoss")
+    public Map<String,Long> getPaymentAllArmyLoss(@RequestParam("pid") Integer pid){
+        return lossService.getPaymentAllArmyLoss(pid);
+    }
+
+    @GetMapping("/getPaymentAllTypeLoss")
+    public Map<String,Long> getPaymentAllTypeLoss(@RequestParam("pid") Integer pid){
+        return lossService.getPaymentAllTypeLoss(pid);
+    }
+
+    @PostMapping("/removeLoss")
+    public String removeLoss(@RequestBody String str){
+        JSONObject strj = JSONObject.parseObject(str);
+
+        Integer lossId = strj.getInteger("id");
+
+        Boolean flag = lossService.removeById(lossId);
+
+        return ResponseUtil.success(flag?"success":"fail");
     }
 
 }

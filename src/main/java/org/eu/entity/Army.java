@@ -19,6 +19,9 @@ public class Army {
 
     private Integer unionId;
 
+    @TableField(exist=false)
+    private String unionName;
+
     private String state;
 
 }

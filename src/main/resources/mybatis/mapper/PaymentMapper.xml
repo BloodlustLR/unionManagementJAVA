@@ -46,11 +46,13 @@
             s.id,
             s.`name`,
             s.type,
-            s.`level`
+            s.`level`,
+            sp.num AS price
         FROM
             standard_payment_ship sps
                 LEFT JOIN payment_standard_payment psp ON psp.standard_payment_id = sps.standard_payment_id
                 LEFT JOIN ship s ON s.id = sps.ship_id
+                LEFT JOIN standard_payment sp ON sp.id = sps.standard_payment_id
         WHERE
             psp.payment_id = #{paymentId}
         AND
@@ -58,4 +60,20 @@
         AND
             s.state = 'A'
     </select>
+
+    <select id="getPaymentUnionArmy" resultType="org.eu.entity.Army">
+        SELECT DISTINCT
+            a.id,
+            a.`name`,
+            a.short_name AS shortName,
+            u.`name` AS unionName
+        FROM
+            loss l
+                LEFT JOIN army a ON a.id = l.army_id
+                LEFT JOIN `union` u ON u.id = a.union_id
+        WHERE
+            l.state = 'A'
+          AND l.payment_id = #{paymentId}
+    </select>
+
 </mapper>

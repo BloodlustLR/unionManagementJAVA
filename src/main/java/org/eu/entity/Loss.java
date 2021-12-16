@@ -1,6 +1,7 @@
 package org.eu.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -16,7 +17,19 @@ public class Loss {
 
     private Integer armyId;
 
+    @TableField(exist=false)
+    private String armyName;
+
+    @TableField(exist=false)
+    private String armyShortName;
+
     private Integer shipId;
+
+    @TableField(exist=false)
+    private String shipName;
+
+    @TableField(exist=false)
+    private String shipType;
 
     private String area;
 

@@ -42,4 +42,42 @@
           AND
             u.state = 'A'
     </select>
+
+    <select id="pageUser" resultType="org.eu.entity.User">
+        SELECT
+            u.id,
+            u.username,
+            u.password,
+            ui.game_id AS gameId,
+            a.short_name AS shortArmy,
+            a.`name` AS army,
+            a.id AS armyId,
+            un.`name` AS `union`,
+            r.`name` AS role,
+            r.id AS roleId
+        FROM
+            `user` u
+                LEFT JOIN user_info ui ON ui.user_id = u.id
+                LEFT JOIN army a ON a.id = ui.army_id
+                LEFT JOIN `union` un ON un.id = a.union_id
+                LEFT JOIN user_role ur ON ur.user_id = u.id
+                LEFT JOIN `role` r ON r.id = ur.role_id
+        WHERE
+            u.state = 'A'
+        <if test="user.username != null">
+          AND u.username LIKE '%${user.username}%'
+        </if>
+        <if test="user.gameId != null">
+          AND ui.game_id LIKE '%${user.gameId}%'
+        </if>
+        <if test="user.armyId != null">
+          AND a.id = #{user.armyId}
+        </if>
+        <if test="user.unionId != null">
+          AND un.id = #{user.unionId}
+        </if>
+        <if test="user.role != null">
+            AND r.name = #{user.role}
+        </if>
+    </select>
 </mapper>

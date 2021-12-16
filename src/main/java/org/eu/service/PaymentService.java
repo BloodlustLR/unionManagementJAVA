@@ -3,8 +3,10 @@ package org.eu.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.eu.entity.Loss;
 import org.eu.entity.Payment;
 import org.eu.entity.Ship;
+import org.eu.entity.Union;
 
 import java.util.List;
 
@@ -16,4 +18,8 @@ public interface PaymentService extends IService<Payment> {
     String addPayment(Payment payment, List<Integer> standardList);
 
     List<Ship> listPaymentShip(Integer paymentId);
+
+    List<Union> getPaymentUnionArmy(Integer pid);
+
+    Long getPaymentTotal(Integer pid);
 }

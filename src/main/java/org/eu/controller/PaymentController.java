@@ -4,9 +4,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import org.eu.entity.Payment;
-import org.eu.entity.PaymentStandardPayment;
-import org.eu.entity.Ship;
+import org.eu.entity.*;
+import org.eu.service.LossService;
 import org.eu.service.PaymentService;
 import org.eu.service.PaymentStandardPaymentService;
 import org.eu.util.DateFormatUtil;
@@ -15,10 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/payment")
@@ -26,6 +22,9 @@ public class PaymentController {
 
     @Autowired
     PaymentService paymentService;
+
+    @Autowired
+    LossService lossService;
 
     @Autowired
     PaymentStandardPaymentService paymentStandardPaymentService;
@@ -53,6 +52,24 @@ public class PaymentController {
     @GetMapping("/getPaymentInfo")
     public Payment getPaymentInfo(@RequestParam("pid") Integer pid){
         return paymentService.getById(pid);
+    }
+
+    @GetMapping("/getPaymentTotal")
+    public Map<String,Object> getPaymentTotal(@RequestParam("pid") Integer pid){
+        Map<String,Object> resultMap = new HashMap<>();
+        resultMap.put("priceTotal",paymentService.getPaymentTotal(pid));
+        resultMap.put("lossTotal",lossService.getPaymentTotal(pid));
+        return resultMap;
+    }
+
+    @GetMapping("/getPaymentUnionArmy")
+    public List<Union> getPaymentUnionArmy(@RequestParam("pid") Integer pid){
+        return paymentService.getPaymentUnionArmy(pid);
+    }
+
+    @GetMapping("/getPaymentShipList")
+    public List<Ship> getPaymentShipList(@RequestParam("pid") Integer pid){
+        return paymentService.listPaymentShip(pid);
     }
 
     @PostMapping("/addPayment")

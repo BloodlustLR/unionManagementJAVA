@@ -1,6 +1,8 @@
 package org.eu.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.eu.entity.User;
 import org.eu.entity.UserInfo;
@@ -31,7 +33,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public String register(User user, UserInfo userInfo) {
+    public String register(User user, UserInfo userInfo,Integer roleId) {
         QueryWrapper<User> wrapper = new QueryWrapper<>();
         wrapper.eq("username",user.getUsername())
                 .eq("state","A");
@@ -54,9 +56,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         UserRole userRole = new UserRole();
         userRole.setUserId(user.getId());
-        userRole.setRoleId(4);
+        userRole.setRoleId(roleId);
         userRoleMapper.insert(userRole);
 
         return "success";
+    }
+
+    @Override
+    public IPage<User> pageUser(Page<User> page, User user) {
+        return userMapper.pageUser(page,user);
     }
 }

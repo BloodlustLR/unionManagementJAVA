@@ -1,11 +1,11 @@
 package org.eu.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.eu.entity.Payment;
-import org.eu.entity.PaymentStandardPayment;
-import org.eu.entity.Ship;
+import org.eu.entity.*;
+import org.eu.mapper.LossMapper;
 import org.eu.mapper.PaymentMapper;
 import org.eu.mapper.PaymentStandardPaymentMapper;
 import org.eu.service.PaymentService;
@@ -21,6 +21,9 @@ public class PaymentServiceImpl extends ServiceImpl<PaymentMapper, Payment> impl
 
     @Autowired
     PaymentMapper paymentMapper;
+
+    @Autowired
+    LossMapper lossMapper;
 
     @Autowired
     PaymentStandardPaymentService paymentStandardPaymentService;
@@ -51,6 +54,50 @@ public class PaymentServiceImpl extends ServiceImpl<PaymentMapper, Payment> impl
     @Override
     public List<Ship> listPaymentShip(Integer paymentId) {
         return paymentMapper.listPaymentShip(paymentId);
+    }
+
+
+    @Override
+    public List<Union> getPaymentUnionArmy(Integer paymentId) {
+
+        List<Union> unionList = new ArrayList<>();
+
+        List<Army> armyList = paymentMapper.getPaymentUnionArmy(paymentId);
+
+        List<String> unionNameList = new ArrayList<>();
+        for(Army army:armyList){
+            if(!unionNameList.contains(army.getUnionName())){
+                Union newUnion = new Union();
+                newUnion.setName(army.getUnionName());
+                newUnion.setArmyList(new ArrayList<>());
+                unionList.add(newUnion);
+                unionNameList.add(newUnion.getName());
+            }
+            army.setName("["+army.getShortName()+"]"+army.getName());
+            unionList.get(unionNameList.indexOf(army.getUnionName())).getArmyList().add(army);
+        }
+        return unionList;
+    }
+
+    @Override
+    public Long getPaymentTotal(Integer pid) {
+        List<Ship> standardShipList = paymentMapper.listPaymentShip(pid);
+
+        QueryWrapper<Loss> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("payment_id",pid)
+                .eq("state","A");
+        List<Loss> lossList = lossMapper.selectList(queryWrapper);
+
+        Long total = new Long(0);
+        for(Loss loss:lossList){
+            for(Ship standardShip :standardShipList){
+                if(standardShip.getId().equals(loss.getShipId())){
+                    total+=standardShip.getPrice();
+                    break;
+                }
+            }
+        }
+        return total;
     }
 
 }

@@ -76,7 +76,7 @@ ocr:
   SECRET_KEY: 8Te4REPPIGmIO4w8ncY2GcnA4mBkBkKs
 #  SECRET_KEY: 4iuVt7oUxEdR2mH8UdqfqIP56Q47QRui
 #  host: http://localhost:8080/
-  host: http://180.76.109.168/
+  host: http://180.76.109.168
   save-path: D:/upload/
 #  save-path: /data/img/
 

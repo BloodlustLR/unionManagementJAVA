@@ -23,16 +23,25 @@ public class User {
     private String role;
 
     @TableField(exist=false)
+    private Integer roleId;
+
+    @TableField(exist=false)
     private String gameId;
 
     @TableField(exist=false)
     private String union;
 
     @TableField(exist=false)
+    private Integer unionId;
+
+    @TableField(exist=false)
     private String shortArmy;
 
     @TableField(exist=false)
     private String army;
+
+    @TableField(exist=false)
+    private Integer armyId;
 
 
     private String state;
