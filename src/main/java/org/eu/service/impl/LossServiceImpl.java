@@ -33,7 +33,9 @@ public class LossServiceImpl extends ServiceImpl<LossMapper, Loss> implements Lo
         List<Loss> lossList = lossMapper.selectList(queryWrapper);
         Long total = new Long(0);
         for(Loss loss: lossList){
-            total+=loss.getNum();
+            if(loss.getNum()!=null){
+                total+=loss.getNum();
+            }
         }
         return total;
     }
@@ -44,11 +46,14 @@ public class LossServiceImpl extends ServiceImpl<LossMapper, Loss> implements Lo
         List<Loss> lossList = lossMapper.getPaymentAllArmyLoss(pid);
 
         for(Loss loss: lossList){
-            String name = "["+loss.getArmyShortName()+"]"+loss.getArmyName();
+//            String name = "["+loss.getArmyShortName()+"]"+loss.getArmyName();
+            String name = loss.getArmyShortName();
             if(!resultMap.containsKey(name)){
                 resultMap.put(name,new Long(0));
             }
-            resultMap.put(name,resultMap.get(name)+loss.getNum());
+            if(loss.getNum()!=null) {
+                resultMap.put(name,resultMap.get(name)+loss.getNum());
+            }
         }
         return resultMap;
     }
@@ -63,9 +68,21 @@ public class LossServiceImpl extends ServiceImpl<LossMapper, Loss> implements Lo
             if(!resultMap.containsKey(name)){
                 resultMap.put(name,new Long(0));
             }
-            resultMap.put(name,resultMap.get(name)+loss.getNum());
+            if(loss.getNum()!=null){
+                resultMap.put(name,resultMap.get(name)+loss.getNum());
+            }
         }
 
         return resultMap;
+    }
+
+    @Override
+    public Loss selectLossById(String id) {
+        return lossMapper.selectLossById(id);
+    }
+
+    @Override
+    public void updateLossById(Loss loss) {
+        lossMapper.updateLossById(loss);
     }
 }

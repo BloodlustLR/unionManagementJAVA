@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.eu.mapper.KillMapper" >
+    <select id="selectKillById" resultType="org.eu.entity.Kill">
+        SELECT
+            *
+        FROM
+            `kill`
+        WHERE
+            id = #{id}
+    </select>
+
+    <select id="getKillReportUnionArmy" resultType="org.eu.entity.Army">
+        SELECT DISTINCT
+            a.id,
+            a.`name`,
+            a.short_name AS shortName,
+            u.`name` AS unionName
+        FROM
+            `kill` k
+                LEFT JOIN army a ON a.id = k.army_id
+                LEFT JOIN `union` u ON u.id = a.union_id
+        WHERE
+            k.state = 'A'
+          AND k.kill_report_id = #{pid}
+    </select>
+    <select id="getKillReportArmyKill" resultType="org.eu.entity.Kill">
+        SELECT
+            k.id,
+            s.name AS shipName,
+            k.area,
+            k.constellation,
+            k.galaxy,
+            k.num,
+            k.kill_time AS killTime,
+            k.img,
+            k.is_modify AS isModify
+        FROM
+            `kill` k
+                LEFT JOIN ship s ON s.id = k.ship_id
+        WHERE
+            k.state = 'A'
+          AND k.kill_report_id = #{killReportId}
+          AND k.army_id = #{armyId}
+    </select>
+
+    <select id="getAllArmyRank" resultType="org.eu.entity.Kill">
+        SELECT
+            k.army_id AS armyId,
+            a.`name` AS armyName,
+            a.short_name AS armyShortName,
+            k.num
+        FROM
+            `kill` k
+                LEFT JOIN army a ON a.id = k.army_id
+        WHERE
+            k.state = 'A'
+          AND k.kill_report_id = #{pid}
+    </select>
+
+    <update id="updateKillById">
+        UPDATE `kill`
+        SET kill_report_id = #{killReportId},
+            army_id = #{armyId},
+            ship_id = #{shipId},
+            kill_time = #{killTime},
+            area = #{area},
+            constellation = #{constellation},
+            galaxy = #{galaxy},
+            num = #{num},
+            img = #{img},
+            is_modify = #{isModify},
+            state = #{state}
+        WHERE
+            id = #{id}
+    </update>
+</mapper>
+
+

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.eu.mapper.KillReportMapper" >
+    <resultMap id="baseResultMap" type="org.eu.entity.KillReport">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="killStartTime" column="kill_start_time"/>
+        <result property="killEndTime" column="kill_end_time"/>
+        <result property="limitArea" column="limit_area"/>
+        <result property="limitConstellation" column="limit_constellation"/>
+        <result property="limitGalaxy" column="limit_galaxy"/>
+        <result property="endTime" column="end_time"/>
+        <result property="state" column="state"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <insert id="insertKillReport">
+
+    </insert>
+
+    <select id="pageKillReport" resultType="org.eu.entity.Payment">
+        SELECT
+        id,
+        `name`,
+        end_time,
+        create_time
+        FROM
+        kill_report
+        WHERE
+        state = 'A'
+        <if test="startDate != null">
+            AND
+            create_time &gt;= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND
+            create_time &lt;= #{endDate}
+        </if>
+    </select>
+</mapper>

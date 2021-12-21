@@ -47,7 +47,7 @@ public class OCRServiceImpl implements OCRService {
         String fileName = Calendar.getInstance().getTimeInMillis()+suffix;
         String filePath = savePath+fileName;
 
-        System.out.println(filePath);
+        System.out.println("源文件-"+filePath);
         FileUtil.inputStreamToFile(multipartFile.getInputStream(),new File(filePath));
 
         System.out.println("转换JPG");
@@ -65,19 +65,19 @@ public class OCRServiceImpl implements OCRService {
         // write to jpeg file
         String jpgName = Calendar.getInstance().getTimeInMillis()+".jpg";
         String jpgPath = savePath+jpgName;
-        System.out.println(jpgPath);
+        System.out.println("转换文件-"+jpgPath);
         ImageIO.write(newBufferedImage, "jpg", new File(jpgPath));
         FileUtil.deleteTempFile(filePath);
         String fileUrl = host+"/api/upload/"+jpgName;
 
-        String ocrData = BaiduOCRWebApi(SystemConfig.ACCESS_TOKEN,fileUrl);
-//        File jpgFile = new File(jpgPath);
-//        byte[] bytes = FileUtil.fileConvertToByteArray(jpgFile);
-//        BASE64Encoder base64Encoder =new BASE64Encoder();
-//        String base64EncoderImg = base64Encoder.encode(bytes);
-//        base64EncoderImg = base64EncoderImg.replaceAll("[\\s*\t\n\r]", "");
-//        String urlEncoded = URLEncoder.encode(base64EncoderImg, "utf-8");
-//        String ocrData = BaiduOCRApi(SystemConfig.ACCESS_TOKEN,base64EncoderImg);
+//        String ocrData = BaiduOCRWebApi(SystemConfig.ACCESS_TOKEN,fileUrl);
+        File jpgFile = new File(jpgPath);
+        byte[] bytes = FileUtil.fileConvertToByteArray(jpgFile);
+        BASE64Encoder base64Encoder =new BASE64Encoder();
+        String base64EncoderImg = base64Encoder.encode(bytes);
+        base64EncoderImg = base64EncoderImg.replaceAll("[\\s*\t\n\r]", "");
+        String urlEncoded = URLEncoder.encode(base64EncoderImg, "utf-8");
+        String ocrData = BaiduOCRApi(SystemConfig.ACCESS_TOKEN,base64EncoderImg);
 
         resultMap.put("img","/api/upload/"+jpgName);
 
@@ -224,19 +224,11 @@ public class OCRServiceImpl implements OCRService {
 
         JSONObject ocrStrj = JSONObject.parseObject(ocrData);
 
-        List<String> wordResultList = JSONObject.parseArray(ocrStrj.getString("words_result"),String.class);
-
         Integer hasShipName=0;
         Integer hasCharacterName=0;
+        Integer hasKMInfo=0;
         Integer attackerLocation=0;
 
-
-        List<String> wordList = new ArrayList<>();
-        for(String wordResult:wordResultList){
-            JSONObject wordResultStrj = JSONObject.parseObject(wordResult);
-            String word = wordResultStrj.getString("words");
-            wordList.add(word);
-        }
 
         String reportId = "";//报告ID
         String reportTime = "";//报告日期
@@ -248,7 +240,22 @@ public class OCRServiceImpl implements OCRService {
         String armyShortName = "";//军团简称
         String characterName = "";//角色名称
         String kmShip = "";//KM舰船
+        String kmArmyShortName = "";//KM军团
+        String kmGameId = "";//击杀者游戏名
         String highATKShip = "";//最高伤舰船
+
+        if(!ocrStrj.containsKey("words_result")){
+            return resultMap;
+        }
+
+        List<String> wordResultList = JSONObject.parseArray(ocrStrj.getString("words_result"),String.class);
+        List<String> wordList = new ArrayList<>();
+        for(String wordResult:wordResultList){
+            JSONObject wordResultStrj = JSONObject.parseObject(wordResult);
+            String word = wordResultStrj.getString("words");
+            wordList.add(word);
+        }
+
         for(int i = 0;i<wordList.size();i++){
 
             if(wordList.get(i).indexOf("击毁报告") != -1 || wordList.get(i).indexOf("损失报告") != -1){
@@ -266,6 +273,8 @@ public class OCRServiceImpl implements OCRService {
                 reportId = joinString(reportId.split("10："));
                 reportId = joinString(reportId.split("0:"));
                 reportId = joinString(reportId.split("0："));
+                reportId = joinString(reportId.split("日"));
+                reportId = joinString(reportId.split("间"));
                 continue;
             }
 
@@ -289,6 +298,7 @@ public class OCRServiceImpl implements OCRService {
                 shipName = joinString(shipName.split("巡洋舰"));
                 shipName = joinString(shipName.split("战列舰"));
                 shipName = joinString(shipName.split("旗舰"));
+                shipName = joinString(shipName.split("工业舰"));
 
                 hasShipName = 1;
                 continue;
@@ -299,23 +309,31 @@ public class OCRServiceImpl implements OCRService {
                 money = wordList.get(i);
                 money = joinString(money.split("星币"));
                 money = joinString(money.split(","));
+                money = joinString(money.split("\\."));
+                money = joinString(money.split("\\]"));
                 continue;
             }
 
             if(wordList.get(i).indexOf("<") != -1 )
             {
                 String[] places = wordList.get(i).split("<");
-                area = places[2];
-                constellation = places[1];
-                galaxy = places[0];
+                if(places.length>2){
+                    area = places[2];
+                }
+                if(places.length>1){
+                    constellation = places[1];
+                }
+                if(places.length>0){
+                    galaxy = places[0];
+                }
                 continue;
             }
 
-            for(int j=0;j<5;j++)
+            for(int j=0;j<6;j++)
             {
                 if(hasCharacterName == 0&&wordList.get(j).indexOf("[") != -1 && wordList.get(j).indexOf("]") != -1)
                 {
-                    if(wordList.get(j).indexOf("损失报告") == -1 || wordList.get(j).indexOf("击毁报告") == -1 ){
+                    if(wordList.get(j).indexOf("损失报告") == -1 && wordList.get(j).indexOf("击毁报告") == -1 ){
                         Integer firstIndex = wordList.get(j).indexOf("[");
                         Integer lastIndex = wordList.get(j).indexOf("]");
                         armyShortName = wordList.get(j).substring(firstIndex+1,lastIndex);
@@ -325,6 +343,18 @@ public class OCRServiceImpl implements OCRService {
                 }
             }
 
+            if(wordList.get(i).indexOf("其他") != -1 ){
+                if(wordList.get(i+1).indexOf("[") != -1 && wordList.get(i+1).indexOf("]") != -1)
+                {
+                    Integer firstIndex = wordList.get(i+1).indexOf("[");
+                    Integer lastIndex = wordList.get(i+1).indexOf("]");
+                    kmArmyShortName = wordList.get(i+1).substring(firstIndex+1,lastIndex);
+                    kmGameId = wordList.get(i+1).substring(lastIndex+1);
+                    hasKMInfo = 1;
+                }
+            }
+
+
             if(wordList.get(i).indexOf("最后一击") != -1 )
             {
                 attackerLocation = i;
@@ -333,6 +363,19 @@ public class OCRServiceImpl implements OCRService {
                     if(wordList.get(j).indexOf("级") != -1 && wordList.get(j).indexOf("旗舰") == -1)
                     {
                         kmShip = wordList.get(j);
+                    }
+                }
+                if(hasKMInfo!=1){
+                    for(int j=attackerLocation-9;j<attackerLocation+1;j++)
+                    {
+                        if(wordList.get(j).indexOf("[") != -1 && wordList.get(j).indexOf("]") != -1)
+                        {
+                            Integer firstIndex = wordList.get(j).indexOf("[");
+                            Integer lastIndex = wordList.get(j).indexOf("]");
+                            kmArmyShortName = wordList.get(j).substring(firstIndex+1,lastIndex);
+                            kmGameId = wordList.get(j).substring(lastIndex+1);
+                            hasKMInfo = 1;
+                        }
                     }
                 }
             }
@@ -361,6 +404,8 @@ public class OCRServiceImpl implements OCRService {
         System.out.println("军团简称- " + armyShortName);
         System.out.println("角色名称- " + characterName);
         System.out.println("KM舰船- " + kmShip);
+        System.out.println("KM军团- " + kmArmyShortName);
+        System.out.println("KM角色名- " + kmGameId);
         System.out.println("最高伤害舰船- " + highATKShip);
 
         resultMap.put("info","success");
@@ -374,6 +419,8 @@ public class OCRServiceImpl implements OCRService {
         resultMap.put("armyShortName",armyShortName);
         resultMap.put("gameId",characterName);
         resultMap.put("kmShip",kmShip);
+        resultMap.put("kmArmyShortName",kmArmyShortName);
+        resultMap.put("kmGameId",kmGameId);
         resultMap.put("highATKShip",highATKShip);
 
         return resultMap;

@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="org.eu.mapper.LossMapper" >
 
+
     <select id="getPaymentArmyLoss" resultType="org.eu.entity.Loss">
         SELECT
             l.id,
@@ -13,7 +14,8 @@
             l.loss_time AS lossTime,
             l.km_ship AS kmShip,
             l.high_atk_ship AS highAtkShip,
-            l.img
+            l.img,
+            l.is_modify AS isModify
         FROM
             loss l
                 LEFT JOIN ship s ON s.id = l.ship_id
@@ -49,4 +51,31 @@
             l.state = 'A'
           AND l.payment_id = #{pid}
     </select>
+    <select id="selectLossById" resultType="org.eu.entity.Loss">
+        SELECT
+            *
+        FROM
+            loss
+        WHERE
+            id = #{id}
+    </select>
+
+    <update id="updateLossById">
+        UPDATE loss
+        SET payment_id = #{paymentId},
+            army_id = #{armyId},
+            ship_id = #{shipId},
+            loss_time = #{lossTime},
+            area = #{area},
+            constellation = #{constellation},
+            galaxy = #{galaxy},
+            num = #{num},
+            km_ship = #{kmShip},
+            high_atk_ship = #{highAtkShip},
+            img = #{img},
+            is_modify = #{isModify},
+            state = #{state}
+        WHERE
+            id = #{id}
+    </update>
 </mapper>

@@ -17,4 +17,8 @@ public interface LossMapper extends BaseMapper<Loss> {
     List<Loss> getPaymentAllArmyLoss(Integer pid);
 
     List<Loss> getPaymentAllShipLoss(Integer pid);
+
+    Loss selectLossById(String id);
+
+    void updateLossById(Loss loss);
 }
