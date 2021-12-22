@@ -39,6 +39,8 @@ public class Loss {
 
     private Long num;
 
+    private Long price;
+
     private String lossTime;
 
     private String kmShip;

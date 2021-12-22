@@ -81,8 +81,6 @@ public class PaymentServiceImpl extends ServiceImpl<PaymentMapper, Payment> impl
 
     @Override
     public Long getPaymentTotal(Integer pid) {
-        List<Ship> standardShipList = paymentMapper.listPaymentShip(pid);
-
         QueryWrapper<Loss> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("payment_id",pid)
                 .eq("state","A");
@@ -90,11 +88,8 @@ public class PaymentServiceImpl extends ServiceImpl<PaymentMapper, Payment> impl
 
         Long total = new Long(0);
         for(Loss loss:lossList){
-            for(Ship standardShip :standardShipList){
-                if(standardShip.getId().equals(loss.getShipId())){
-                    total+=standardShip.getPrice();
-                    break;
-                }
+            if(loss.getPrice()!=null){
+                total+=loss.getPrice();
             }
         }
         return total;

@@ -14,6 +14,7 @@
             l.loss_time AS lossTime,
             l.km_ship AS kmShip,
             l.high_atk_ship AS highAtkShip,
+            l.price,
             l.img,
             l.is_modify AS isModify
         FROM

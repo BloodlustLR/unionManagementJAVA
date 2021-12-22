@@ -70,14 +70,14 @@ public class OCRServiceImpl implements OCRService {
         FileUtil.deleteTempFile(filePath);
         String fileUrl = host+"/api/upload/"+jpgName;
 
-//        String ocrData = BaiduOCRWebApi(SystemConfig.ACCESS_TOKEN,fileUrl);
-        File jpgFile = new File(jpgPath);
-        byte[] bytes = FileUtil.fileConvertToByteArray(jpgFile);
-        BASE64Encoder base64Encoder =new BASE64Encoder();
-        String base64EncoderImg = base64Encoder.encode(bytes);
-        base64EncoderImg = base64EncoderImg.replaceAll("[\\s*\t\n\r]", "");
-        String urlEncoded = URLEncoder.encode(base64EncoderImg, "utf-8");
-        String ocrData = BaiduOCRApi(SystemConfig.ACCESS_TOKEN,base64EncoderImg);
+        String ocrData = BaiduOCRWebApi(SystemConfig.ACCESS_TOKEN,fileUrl);
+//        File jpgFile = new File(jpgPath);
+//        byte[] bytes = FileUtil.fileConvertToByteArray(jpgFile);
+//        BASE64Encoder base64Encoder =new BASE64Encoder();
+//        String base64EncoderImg = base64Encoder.encode(bytes);
+//        base64EncoderImg = base64EncoderImg.replaceAll("[\\s*\t\n\r]", "");
+//        String urlEncoded = URLEncoder.encode(base64EncoderImg, "utf-8");
+//        String ocrData = BaiduOCRApi(SystemConfig.ACCESS_TOKEN,base64EncoderImg);
 
         resultMap.put("img","/api/upload/"+jpgName);
 

@@ -7,6 +7,9 @@ import com.baidubce.http.HttpMethodName;
 import com.baidubce.model.ApiExplorerRequest;
 import com.baidubce.model.ApiExplorerResponse;
 import org.eu.config.SystemConfig;
+import org.eu.service.KillService;
+import org.eu.service.LossService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Scheduled;
 
@@ -20,7 +23,13 @@ import java.util.Map;
 @Configuration
 public class ScheduleTask {
 
-    @Scheduled(cron = "0 0 0/1 * * ? ")
+    @Autowired
+    LossService lossService;
+
+    @Autowired
+    KillService killService;
+
+    @Scheduled(cron = "0 0/30 * * * ? ")
     public void requestAccessTokenSchedule() {
         Map<String,String> accessTokenMap = requestAccessToken();
         SystemConfig.ACCESS_TOKEN = accessTokenMap.get("access_token");
@@ -56,5 +65,12 @@ public class ScheduleTask {
         }
         return resultMap;
     }
+
+
+//    @Scheduled(cron = "0 0/1 * * * ? ")
+//    public void deleteUselessPic() {
+//        System.out.println("清理无效图片文件");
+//
+//    }
 
 }

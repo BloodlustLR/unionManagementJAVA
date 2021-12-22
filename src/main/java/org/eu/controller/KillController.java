@@ -9,6 +9,7 @@ import org.eu.entity.Ship;
 import org.eu.service.ArmyService;
 import org.eu.service.KillService;
 import org.eu.service.ShipService;
+import org.eu.util.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,7 +60,7 @@ public class KillController {
             }
 
             if(armyId==null){
-                valueStrj.put("info","没有军团信息");
+                valueStrj.put("info","军团未入库，请联系管理员添加");
                 resultMap.put(key,valueStrj);
                 continue;
             }
@@ -115,5 +116,16 @@ public class KillController {
         return killService.getAllAreaKill(pid);
     }
 
+
+    @PostMapping("/removeKill")
+    public String removeLoss(@RequestBody String str){
+        JSONObject strj = JSONObject.parseObject(str);
+
+        Integer lossId = strj.getInteger("id");
+
+        Boolean flag = killService.removeById(lossId);
+
+        return ResponseUtil.success(flag?"success":"fail");
+    }
 
 }

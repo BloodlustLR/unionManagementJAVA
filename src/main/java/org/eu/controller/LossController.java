@@ -53,6 +53,7 @@ public class LossController {
 
             if(!hasAchieveShipList){
                 shipList = paymentService.listPaymentShip(paymentId);
+                hasAchieveShipList = true;
             }
 
             Integer armyId = null;
@@ -70,7 +71,7 @@ public class LossController {
             }
 
             if(armyId==null){
-                valueStrj.put("info","没有军团信息");
+                valueStrj.put("info","军团未入库，请联系管理员添加");
                 resultMap.put(key,valueStrj);
                 continue;
             }
@@ -82,14 +83,14 @@ public class LossController {
                 continue;
             }
 
-            Boolean findFlag = false;
+            Ship findShip = null;
             for(Ship allowShip: shipList){
                 if(allowShip.getName().equals(ship.getName())){
-                    findFlag = true;
+                    findShip = allowShip;
                     break;
                 }
             }
-            if(!findFlag){
+            if(findShip==null){
                 valueStrj.put("info","船型不合规");
                 resultMap.put(key,valueStrj);
                 continue;
@@ -108,6 +109,7 @@ public class LossController {
             loss.setKmShip(valueStrj.getString("kmShip"));
             loss.setHighAtkShip(valueStrj.getString("highATKShip"));
             loss.setImg(valueStrj.getString("img"));
+            loss.setPrice(findShip.getPrice());
             loss.setIsModify(valueStrj.getBoolean("isModify"));
             loss.setState("A");
 
@@ -132,6 +134,7 @@ public class LossController {
 
         if(!hasAchieveShipList){
             shipList = paymentService.listPaymentShip(paymentId);
+            hasAchieveShipList = true;
         }
 
         Integer armyId = null;
@@ -157,14 +160,14 @@ public class LossController {
             return ResponseUtil.success("没有船型");
         }
 
-        Boolean findFlag = false;
+        Ship findShip = null;
         for(Ship allowShip: shipList){
             if(allowShip.getName().equals(ship.getName())){
-                findFlag = true;
+                findShip = allowShip;
                 break;
             }
         }
-        if(!findFlag){
+        if(findShip==null){
             return ResponseUtil.success("船型不合规");
         }
 
@@ -178,6 +181,7 @@ public class LossController {
         loss.setConstellation(valueStrj.getString("constellation"));
         loss.setGalaxy(valueStrj.getString("galaxy"));
         loss.setNum(valueStrj.getLong("money"));
+        loss.setPrice(findShip.getPrice());
         loss.setKmShip(valueStrj.getString("kmShip"));
         loss.setHighAtkShip(valueStrj.getString("highATKShip"));
         loss.setImg(valueStrj.getString("img"));
