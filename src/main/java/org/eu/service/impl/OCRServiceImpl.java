@@ -275,6 +275,8 @@ public class OCRServiceImpl implements OCRService {
                 reportId = joinString(reportId.split("0："));
                 reportId = joinString(reportId.split("日"));
                 reportId = joinString(reportId.split("间"));
+                reportId = joinString(reportId.split(":"));
+                reportId = joinString(reportId.split("："));
                 continue;
             }
 
