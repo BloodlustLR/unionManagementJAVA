@@ -1,5 +1,6 @@
 package org.eu.controller;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.eu.entity.Army;
@@ -13,10 +14,9 @@ import org.eu.util.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @RestController
 @RequestMapping("/kill")
@@ -32,22 +32,18 @@ public class KillController {
     KillService killService;
 
     @PostMapping("/addKill")
-    public Map<String,Object> addLoss(@RequestBody String str){
-        JSONObject strj = JSONObject.parseObject(str);
+    public List<JSONObject> addKill(@RequestBody String str) throws ParseException {
+        JSONArray strArr = JSONArray.parseArray(str);
 
-        Map<String,Object> resultMap = new HashMap<>();
-
-
-        for(String key:strj.keySet()){
-
-            System.out.println(key);
-
-            JSONObject valueStrj = strj.getJSONObject(key);
+        List<JSONObject> resultList = new ArrayList<>();
+        for(int i = 0;i < strArr.size() ; i++){
+            JSONObject valueStrj = strArr.getJSONObject(i);
             Integer killReportId = valueStrj.getInteger("killReportId");
 
             Integer armyId = null;
-            String shortName = valueStrj.getString("armyShortName");
+            String shortName = valueStrj.getString("kmArmyShortName");
             if(shortName!=null){
+
                 QueryWrapper<Army> queryWrapper = new QueryWrapper<>();
                 queryWrapper.eq("short_name",valueStrj.getString("kmArmyShortName"))
                         .eq("state",'A');
@@ -61,19 +57,29 @@ public class KillController {
 
             if(armyId==null){
                 valueStrj.put("info","军团未入库，请联系管理员添加");
-                resultMap.put(key,valueStrj);
+                resultList.add(valueStrj);
                 continue;
             }
 
             Ship ship = shipService.findShipByName(valueStrj.getString("shipName"));
             if(ship==null){
                 valueStrj.put("info","没有船型");
-                resultMap.put(key,valueStrj);
+                resultList.add(valueStrj);
                 continue;
             }
+            Calendar cal = Calendar.getInstance();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            cal.setTime(sdf.parse(valueStrj.getString("reportTime")));
+            StringBuilder idBuilder = new StringBuilder();
+            idBuilder.append(armyId);
+            idBuilder.append("-");
+            idBuilder.append(cal.getTimeInMillis());
+            idBuilder.append("-");
+            idBuilder.append(valueStrj.getLong("money"));
+            String id = idBuilder.toString();
 
             Kill kill = new Kill();
-            kill.setId(key);
+            kill.setId(id);
             kill.setKillReportId(killReportId);
             kill.setArmyId(armyId);
             kill.setShipId(ship.getId());
@@ -86,15 +92,15 @@ public class KillController {
             kill.setIsModify(valueStrj.getBoolean("isModify"));
             kill.setState("A");
 
-            Kill oldLoss = killService.selectKillById(key);
-            System.out.println(oldLoss);
+            Kill oldLoss = killService.selectKillById(id);
             if(oldLoss!=null){
                 killService.updateKillById(kill);
             }else{
                 killService.save(kill);
             }
         }
-        return resultMap;
+
+        return resultList;
     }
 
     @PostMapping("/getKillReportArmyKill")
@@ -121,9 +127,9 @@ public class KillController {
     public String removeLoss(@RequestBody String str){
         JSONObject strj = JSONObject.parseObject(str);
 
-        Integer lossId = strj.getInteger("id");
+        String killId = strj.getString("id");
 
-        Boolean flag = killService.removeById(lossId);
+        Boolean flag = killService.removeById(killId);
 
         return ResponseUtil.success(flag?"success":"fail");
     }

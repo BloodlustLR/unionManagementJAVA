@@ -23,10 +23,9 @@ public class OCRController {
 
 
     @PostMapping("/detectPic")
-    public Map<String,String> detectPic(@RequestParam("file") MultipartFile multipartFile) throws IOException {
+    public Map<String,Object> detectPic(@RequestParam("file") MultipartFile multipartFile) throws IOException {
 
         return ocrService.detectPic(multipartFile);
     }
-
 
 }

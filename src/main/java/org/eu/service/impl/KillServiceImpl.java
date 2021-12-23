@@ -97,7 +97,7 @@ public class KillServiceImpl extends ServiceImpl<KillMapper, Kill> implements Ki
         Map<String,Long> areaMap = new HashMap<>();
 
         QueryWrapper<Kill> killQueryWrapper = new QueryWrapper<>();
-        killQueryWrapper.eq("state","A");
+        killQueryWrapper.eq("kill_report_id",pid).eq("state","A");
         List<Kill> killList = killMapper.selectList(killQueryWrapper);
 
         for(Kill kill: killList){

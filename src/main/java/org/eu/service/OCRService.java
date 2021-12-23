@@ -8,6 +8,6 @@ import java.util.Map;
 
 public interface OCRService {
 
-    Map<String,String> detectPic(MultipartFile multipartFile) throws IOException;
+    Map<String,Object> detectPic(MultipartFile multipartFile) throws IOException;
 
 }

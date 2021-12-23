@@ -28,4 +28,12 @@
           AND ui.state = 'A'
           AND ui.game_id = #{gameId}
     </select>
+    <select id="listArmyShorName" resultType="java.lang.String">
+        SELECT
+            short_name
+        FROM
+            army
+        WHERE
+            state = 'A'
+    </select>
 </mapper>

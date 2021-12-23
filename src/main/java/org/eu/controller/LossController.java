@@ -1,5 +1,6 @@
 package org.eu.controller;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.eu.entity.Army;
@@ -14,10 +15,9 @@ import org.eu.util.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @RestController
 @RequestMapping("/loss")
@@ -36,19 +36,16 @@ public class LossController {
     ShipService shipService;
 
     @PostMapping("/addLoss")
-    public Map<String,Object> addLoss(@RequestBody String str){
-        JSONObject strj = JSONObject.parseObject(str);
+    public List<JSONObject> addLoss(@RequestBody String str) throws ParseException {
+        JSONArray strArr = JSONArray.parseArray(str);
 
-        Map<String,Object> resultMap = new HashMap<>();
+        List<JSONObject> resultList = new ArrayList<>();
 
         Boolean hasAchieveShipList = false;
         List<Ship> shipList = new ArrayList<>();
 
-        for(String key:strj.keySet()){
-
-            System.out.println(key);
-
-            JSONObject valueStrj = strj.getJSONObject(key);
+        for(int i = 0;i < strArr.size() ; i++) {
+            JSONObject valueStrj = strArr.getJSONObject(i);
             Integer paymentId = valueStrj.getInteger("paymentId");
 
             if(!hasAchieveShipList){
@@ -72,14 +69,14 @@ public class LossController {
 
             if(armyId==null){
                 valueStrj.put("info","军团未入库，请联系管理员添加");
-                resultMap.put(key,valueStrj);
+                resultList.add(valueStrj);
                 continue;
             }
 
             Ship ship = shipService.findShipByName(valueStrj.getString("shipName"));
             if(ship==null){
                 valueStrj.put("info","没有船型");
-                resultMap.put(key,valueStrj);
+                resultList.add(valueStrj);
                 continue;
             }
 
@@ -92,12 +89,23 @@ public class LossController {
             }
             if(findShip==null){
                 valueStrj.put("info","船型不合规");
-                resultMap.put(key,valueStrj);
+                resultList.add(valueStrj);
                 continue;
             }
 
+            Calendar cal = Calendar.getInstance();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            cal.setTime(sdf.parse(valueStrj.getString("reportTime")));
+            StringBuilder idBuilder = new StringBuilder();
+            idBuilder.append(armyId);
+            idBuilder.append("-");
+            idBuilder.append(cal.getTimeInMillis());
+            idBuilder.append("-");
+            idBuilder.append(valueStrj.getLong("money"));
+            String id = idBuilder.toString();
+
             Loss loss = new Loss();
-            loss.setId(key);
+            loss.setId(id);
             loss.setPaymentId(paymentId);
             loss.setArmyId(armyId);
             loss.setShipId(ship.getId());
@@ -113,15 +121,15 @@ public class LossController {
             loss.setIsModify(valueStrj.getBoolean("isModify"));
             loss.setState("A");
 
-            Loss oldLoss = lossService.selectLossById(key);
-            System.out.println(oldLoss);
+            Loss oldLoss = lossService.selectLossById(id);
             if(oldLoss!=null){
                 lossService.updateLossById(loss);
             }else{
                 lossService.save(loss);
             }
+
         }
-        return resultMap;
+        return resultList;
     }
 
     @PostMapping("/updateLoss")
@@ -216,7 +224,7 @@ public class LossController {
     public String removeLoss(@RequestBody String str){
         JSONObject strj = JSONObject.parseObject(str);
 
-        Integer lossId = strj.getInteger("id");
+        String lossId = strj.getString("id");
 
         Boolean flag = lossService.removeById(lossId);
 
