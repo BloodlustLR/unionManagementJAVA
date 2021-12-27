@@ -30,11 +30,7 @@ import java.util.List;
 @Service
 public class OCRServiceImpl implements OCRService {
 
-    @Value("${ocr.host}")
-    private String host;
 
-    @Value("${ocr.save-path}")
-    private String savePath;
 
     @Autowired
     ArmyMapper armyMapper;
@@ -50,7 +46,7 @@ public class OCRServiceImpl implements OCRService {
         String suffix = multipartFile.getOriginalFilename().substring(lastIndexOf);
 
         String fileName = Calendar.getInstance().getTimeInMillis()+suffix;
-        String filePath = savePath+fileName;
+        String filePath = SystemConfig.SAVE_PATH+File.separator+fileName;
 
         System.out.println("源文件-"+filePath);
         FileUtil.inputStreamToFile(multipartFile.getInputStream(),new File(filePath));
@@ -69,11 +65,11 @@ public class OCRServiceImpl implements OCRService {
 
         // write to jpeg file
         String jpgName = Calendar.getInstance().getTimeInMillis()+".jpg";
-        String jpgPath = savePath+jpgName;
+        String jpgPath = SystemConfig.SAVE_PATH+File.separator+jpgName;
         System.out.println("转换文件-"+jpgPath);
         ImageIO.write(newBufferedImage, "jpg", new File(jpgPath));
         FileUtil.deleteTempFile(filePath);
-        String fileUrl = host+"/api/upload/"+jpgName;
+        String fileUrl = SystemConfig.HOST+"/api/upload/"+jpgName;
 
         String ocrData = BaiduOCRWebApi(SystemConfig.ACCESS_TOKEN,fileUrl);
 //        File jpgFile = new File(jpgPath);
@@ -152,6 +148,7 @@ public class OCRServiceImpl implements OCRService {
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
+//        String path = "https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic?access_token="+accessToken;
         String path = "https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic?access_token="+accessToken;
 
         Map<String,String> bodyMap = new HashMap<>();
@@ -190,6 +187,7 @@ public class OCRServiceImpl implements OCRService {
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
+//        String path = "https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic?access_token="+accessToken;
         String path = "https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic?access_token="+accessToken;
 
         Map<String,String> bodyMap = new HashMap<>();
@@ -316,14 +314,23 @@ public class OCRServiceImpl implements OCRService {
 
             if(wordList.get(i).indexOf("UTC") != -1||wordList.get(i).indexOf("UT0") != -1||wordList.get(i).indexOf("UTO") != -1){
                 reportTime = wordList.get(i);
-                if(reportTime.length()<10){
+                if(reportTime.length()<=10){
                     reportTime +=  wordList.get(i+1);
                 }
                 reportTime = joinString(reportTime.split("UTC\\+8"));
                 reportTime = joinString(reportTime.split("UT0\\+8"));
                 reportTime = joinString(reportTime.split("UTO\\+8"));
                 reportTime = reportTime.replaceAll("/","-");
-                reportTime = reportTime.substring(0,10)+" "+reportTime.substring(10);
+
+                String time = reportTime.substring(10);
+                time = joinString(time.split(":"));
+                if(time.length()<6){
+                    int rest = 6 - time.length();
+                    for(int t=0;t<rest;t++){
+                        time+="0";
+                    }
+                }
+                reportTime = reportTime.substring(0,10)+" "+time.substring(0,2)+":"+time.substring(2,4)+":"+time.substring(4,6);
                 continue;
             }
 
@@ -342,10 +349,11 @@ public class OCRServiceImpl implements OCRService {
                 continue;
             }
 
-            if(wordList.get(i).indexOf("星币") != -1)
+            if(wordList.get(i).indexOf("星币") != -1||wordList.get(i).indexOf("星市") != -1)
             {
                 money = wordList.get(i);
                 money = joinString(money.split("星币"));
+                money = joinString(money.split("星市"));
                 money = joinString(money.split(","));
                 money = joinString(money.split("\\."));
                 money = joinString(money.split("\\]"));
@@ -383,7 +391,7 @@ public class OCRServiceImpl implements OCRService {
 
             for(int j=0;j<6;j++)
             {
-                if(hasCharacterName == 0&&wordList.get(j).indexOf("[") != -1 || wordList.get(j).indexOf("]") != -1)
+                if(hasCharacterName == 0&&(wordList.get(j).indexOf("[") != -1 || wordList.get(j).indexOf("]") != -1))
                 {
                     if(wordList.get(j).indexOf("损失报告") == -1 && wordList.get(j).indexOf("击毁报告") == -1 ){
                         String armyShorStr = joinString(wordList.get(j).split("\\["));
@@ -519,9 +527,49 @@ public class OCRServiceImpl implements OCRService {
 
         List<Map<String,String>> detectList = new ArrayList<>();
 
+        String armyShortName = null;//军团简称
         for(int i = 0;i<wordList.size();i++){
             if(wordList.get(i).indexOf("[") != -1 || wordList.get(i).indexOf("]") != -1)
             {
+                String armyShorStr = joinString(wordList.get(i).split("\\["));
+                armyShorStr = joinString(armyShorStr.split("\\]"));
+                for(String shortName :armyShortNameList){
+                    if(armyShorStr.indexOf(shortName)>-1){
+                        armyShortName = shortName;
+                    }
+                }
+            }
+        }
+
+        for(int i = 0;i<wordList.size();i++){
+
+            Boolean isContainArmyShortName = false;
+            String characterName = null;//角色名称
+            if(armyShortName==null){
+                for(String shortName :armyShortNameList){
+                    if(wordList.get(i).indexOf(shortName)>-1){
+                        String armyShorStr = joinString(wordList.get(i).split("\\["));
+                        armyShorStr = joinString(armyShorStr.split("\\]"));
+                        armyShortName = shortName;
+                        characterName = joinString(armyShorStr.split(shortName));
+                        isContainArmyShortName = true;
+                    }
+                }
+            }else{
+                if(wordList.get(i).indexOf(armyShortName)>-1){
+                    String armyShorStr = joinString(wordList.get(i).split("\\["));
+                    armyShorStr = joinString(armyShorStr.split("\\]"));
+                    characterName = joinString(armyShorStr.split(armyShortName));
+                    isContainArmyShortName = true;
+                }
+            }
+
+            if(isContainArmyShortName){
+
+//            }
+//
+//            if(wordList.get(i).indexOf("[") != -1 || wordList.get(i).indexOf("]") != -1)
+//            {
                 Map<String,String> detectMap = new HashMap<>();
 
                 String reportTime = "";//报告日期
@@ -530,17 +578,15 @@ public class OCRServiceImpl implements OCRService {
                 String area = "";//地区
                 String constellation = "";//星域
                 String galaxy = "";//星座
-                String armyShortName = "";//军团简称
-                String characterName = "";//角色名称
 
-                String armyShorStr = joinString(wordList.get(i).split("\\["));
-                armyShorStr = joinString(armyShorStr.split("\\]"));
-                for(String shortName :armyShortNameList){
-                    if(armyShorStr.indexOf(shortName)>-1){
-                        armyShortName = shortName;
-                        characterName = joinString(armyShorStr.split(shortName));
-                    }
-                }
+//                String armyShorStr = joinString(wordList.get(i).split("\\["));
+//                armyShorStr = joinString(armyShorStr.split("\\]"));
+//                for(String shortName :armyShortNameList){
+//                    if(armyShorStr.indexOf(shortName)>-1){
+//                        armyShortName = shortName;
+//                        characterName = joinString(armyShorStr.split(shortName));
+//                    }
+//                }
 
                 if(wordList.get(i+1).indexOf("太空舱")>-1){
                     continue;
@@ -548,14 +594,15 @@ public class OCRServiceImpl implements OCRService {
 
                 for(int j = i+1;j<i+7;j++){
 
-                    if((wordList.get(j).indexOf("号") != -1||wordList.get(j).indexOf("级") != -1) && wordList.get(j).indexOf("旗舰") == -1){
+                    if(shipName.equals("")&&(wordList.get(j).indexOf("号") != -1||wordList.get(j).indexOf("级") != -1) && wordList.get(j).indexOf("旗舰") == -1){
                         shipName = wordList.get(j);
                         continue;
                     }
-                    if(wordList.get(j).indexOf("星币") != -1)
+                    if(wordList.get(j).indexOf("星币") != -1||wordList.get(j).indexOf("星市") != -1)
                     {
                         money = wordList.get(j);
                         money = joinString(money.split("星币"));
+                        money = joinString(money.split("星市"));
                         money = joinString(money.split(","));
                         money = joinString(money.split("\\."));
                         money = joinString(money.split("\\]"));
@@ -596,7 +643,16 @@ public class OCRServiceImpl implements OCRService {
                         reportTime = joinString(reportTime.split("UT0\\+8"));
                         reportTime = joinString(reportTime.split("UTO\\+8"));
                         reportTime = reportTime.replaceAll("/","-");
-                        reportTime = reportTime.substring(0,10)+" "+reportTime.substring(10);
+
+                        String time = reportTime.substring(10);
+                        time = joinString(time.split(":"));
+                        if(time.length()<6){
+                            int rest = 6 - time.length();
+                            for(int t=0;t<rest;t++){
+                                time+="0";
+                            }
+                        }
+                        reportTime = reportTime.substring(0,10)+" "+time.substring(0,2)+":"+time.substring(2,4)+":"+time.substring(4,6);
                         continue;
                     }
                 }
