@@ -19,4 +19,6 @@ public interface PaymentMapper extends BaseMapper<Payment> {
     List<Ship> listPaymentShip(Integer paymentId);
 
     List<Army> getPaymentUnionArmy(Integer paymentId);
+
+    List<StandardPayment> listPaymentStandardPayment(Integer pid);
 }

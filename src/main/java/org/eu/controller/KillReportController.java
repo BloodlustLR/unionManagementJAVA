@@ -106,6 +106,50 @@ public class KillReportController {
         return ResponseUtil.success(flag?"success":"fail");
     }
 
+    @PostMapping("/configKillReport")
+    public String configKillReport(@RequestBody String str){
+        JSONObject strj = JSONObject.parseObject(str);
+
+        KillReport killReport = new KillReport();
+
+        Integer id = strj.getInteger("id");
+        String name = strj.getString("name");
+        String endTime = DateFormatUtil.formatSecond(DateFormatUtil.parseDateByUTC(strj.getString("endTime")));
+        killReport.setId(id);
+        killReport.setName(name);
+        killReport.setEndTime(endTime);
+
+        Boolean hasLimitTime = strj.getBoolean("hasLimitTime");
+        if(hasLimitTime){
+            List<String> limitTime = JSONObject.parseArray(strj.getString("limitTime"),String.class);
+            String lossStartTime = DateFormatUtil.formatSecond(DateFormatUtil.parseDateByUTC(limitTime.get(0)));
+            String lossEndTime = DateFormatUtil.formatSecond(DateFormatUtil.parseDateByUTC(limitTime.get(1)));
+            killReport.setKillStartTime(lossStartTime);
+            killReport.setKillEndTime(lossEndTime);
+        }
+        Boolean hasLimitArea = strj.getBoolean("hasLimitArea");
+        if(hasLimitArea){
+            String limitAreaStr = strj.getString("limitAreaList");
+            killReport.setLimitArea(limitAreaStr);
+        }
+
+        Boolean hasLimitConstellation = strj.getBoolean("hasLimitConstellation");
+        if(hasLimitConstellation){
+            String limitConstellationStr = strj.getString("limitConstellationList");
+            killReport.setLimitConstellation(limitConstellationStr);
+        }
+
+        Boolean hasLimitGalaxy = strj.getBoolean("hasLimitGalaxy");
+        if(hasLimitGalaxy){
+            String limitGalaxyStr = strj.getString("limitGalaxyList");
+            killReport.setLimitGalaxy(limitGalaxyStr);
+        }
+
+        Boolean flag = killReportService.updateById(killReport);
+
+        return ResponseUtil.success(flag?"success":"fail");
+    }
+
     @PostMapping("/removeKillReport")
     public String removeKillReport(@RequestBody String str){
         JSONObject strj = JSONObject.parseObject(str);

@@ -12,6 +12,8 @@ import java.util.Map;
 @Mapper
 public interface LossMapper extends BaseMapper<Loss> {
 
+    List<Loss> getPaymentLossWithUnionArmy(@Param("paymentId") Integer paymentId);
+
     List<Loss> getPaymentArmyLoss(@Param("paymentId") Integer paymentId, @Param("armyId") Integer armyId);
 
     List<Loss> getPaymentAllArmyLoss(Integer pid);

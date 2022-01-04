@@ -77,6 +77,42 @@ public class LossServiceImpl extends ServiceImpl<LossMapper, Loss> implements Lo
     }
 
     @Override
+    public Map<String, Long> getPaymentAllArmy(Integer pid) {
+        Map<String,Long> resultMap = new HashMap<>();
+        List<Loss> lossList = lossMapper.getPaymentAllArmyLoss(pid);
+
+        for(Loss loss: lossList){
+//            String name = "["+loss.getArmyShortName()+"]"+loss.getArmyName();
+            String name = loss.getArmyShortName();
+            if(!resultMap.containsKey(name)){
+                resultMap.put(name,new Long(0));
+            }
+            if(loss.getPrice()!=null) {
+                resultMap.put(name,resultMap.get(name)+loss.getPrice());
+            }
+        }
+        return resultMap;
+    }
+
+    @Override
+    public Map<String, Long> getPaymentAllType(Integer pid) {
+        Map<String,Long> resultMap = new HashMap<>();
+        List<Loss> lossList = lossMapper.getPaymentAllShipLoss(pid);
+
+        for(Loss loss: lossList){
+            String name = loss.getShipType();
+            if(!resultMap.containsKey(name)){
+                resultMap.put(name,new Long(0));
+            }
+            if(loss.getPrice()!=null){
+                resultMap.put(name,resultMap.get(name)+loss.getPrice());
+            }
+        }
+
+        return resultMap;
+    }
+
+    @Override
     public Loss selectLossById(String id) {
         return lossMapper.selectLossById(id);
     }

@@ -1,7 +1,9 @@
 package org.eu.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.eu.entity.*;
@@ -51,7 +53,10 @@ public class PaymentController {
 
     @GetMapping("/getPaymentInfo")
     public Payment getPaymentInfo(@RequestParam("pid") Integer pid){
-        return paymentService.getById(pid);
+        Payment payment = paymentService.getById(pid);
+        List<StandardPayment> standardPaymentList = paymentService.getPaymentStandardPayment(pid);
+        payment.setStandardPaymentList(standardPaymentList);
+        return payment;
     }
 
     @GetMapping("/getPaymentTotal")
@@ -72,6 +77,15 @@ public class PaymentController {
         return paymentService.listPaymentShip(pid);
     }
 
+    @PostMapping("/getPaymentList")
+    public Map<String,Object> getPaymentList(@RequestBody String str){
+        JSONObject strj = JSONObject.parseObject(str);
+        Integer pid = strj.getInteger("pid");
+        Integer pageNum = strj.getInteger("pageNum");
+        Integer pageSize = strj.getInteger("pageSize");
+        return paymentService.getPaymentList(pid,pageNum,pageSize);
+    }
+
     @PostMapping("/addPayment")
     public String addPayment(@RequestBody String str){
         JSONObject strj = JSONObject.parseObject(str);
@@ -80,7 +94,9 @@ public class PaymentController {
 
         String name = strj.getString("name");
         String endTime = DateFormatUtil.formatSecond(DateFormatUtil.parseDateByUTC(strj.getString("endTime")));
+        Float rate = strj.getFloat("rate");
         payment.setName(name);
+        payment.setRate(rate);
         payment.setEndTime(endTime);
 
         Boolean hasLimitTime = strj.getBoolean("hasLimitTime");
@@ -112,6 +128,52 @@ public class PaymentController {
         List<Integer> standardList = JSONObject.parseArray(strj.getString("standardList"),Integer.class);
 
         return ResponseUtil.success(paymentService.addPayment(payment,standardList));
+    }
+
+    @PostMapping("/configPayment")
+    public String configPayment(@RequestBody String str){
+        JSONObject strj = JSONObject.parseObject(str);
+
+        Payment payment = new Payment();
+
+        Integer id = strj.getInteger("id");
+        String name = strj.getString("name");
+        String endTime = DateFormatUtil.formatSecond(DateFormatUtil.parseDateByUTC(strj.getString("endTime")));
+        Float rate = strj.getFloat("rate");
+        payment.setId(id);
+        payment.setRate(rate);
+        payment.setName(name);
+        payment.setEndTime(endTime);
+
+        Boolean hasLimitTime = strj.getBoolean("hasLimitTime");
+        if(hasLimitTime){
+            List<String> limitTime = JSONObject.parseArray(strj.getString("limitTime"),String.class);
+            String lossStartTime = DateFormatUtil.formatSecond(DateFormatUtil.parseDateByUTC(limitTime.get(0)));
+            String lossEndTime = DateFormatUtil.formatSecond(DateFormatUtil.parseDateByUTC(limitTime.get(1)));
+            payment.setLossStartTime(lossStartTime);
+            payment.setLossEndTime(lossEndTime);
+        }
+        Boolean hasLimitArea = strj.getBoolean("hasLimitArea");
+        if(hasLimitArea){
+            String limitAreaStr = strj.getString("limitAreaList");
+            payment.setLimitArea(limitAreaStr);
+        }
+
+        Boolean hasLimitConstellation = strj.getBoolean("hasLimitConstellation");
+        if(hasLimitConstellation){
+            String limitConstellationStr = strj.getString("limitConstellationList");
+            payment.setLimitConstellation(limitConstellationStr);
+        }
+
+        Boolean hasLimitGalaxy = strj.getBoolean("hasLimitGalaxy");
+        if(hasLimitGalaxy){
+            String limitGalaxyStr = strj.getString("limitGalaxyList");
+            payment.setLimitGalaxy(limitGalaxyStr);
+        }
+
+        List<Integer> standardList = JSONObject.parseArray(strj.getString("standardList"),Integer.class);
+
+        return ResponseUtil.success(paymentService.configPayment(payment,standardList));
     }
 
     @PostMapping("/removePayment")

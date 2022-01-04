@@ -389,15 +389,14 @@ public class OCRServiceImpl implements OCRService {
 //                }
 //            }
 
-            for(int j=0;j<6;j++)
-            {
-                if(hasCharacterName == 0&&(wordList.get(j).indexOf("[") != -1 || wordList.get(j).indexOf("]") != -1))
+            if(i<12){
+                if(hasCharacterName == 0&&(wordList.get(i).indexOf("[") != -1 || wordList.get(i).indexOf("]") != -1))
                 {
-                    if(wordList.get(j).indexOf("损失报告") == -1 && wordList.get(j).indexOf("击毁报告") == -1 ){
-                        String armyShorStr = joinString(wordList.get(j).split("\\["));
+                    if(wordList.get(i).indexOf("损失报告") == -1 && wordList.get(i).indexOf("击毁报告") == -1 ){
+                        String armyShorStr = joinString(wordList.get(i).split("\\["));
                         armyShorStr = joinString(armyShorStr.split("\\]"));
                         for(String shortName :armyShortNameList){
-                            if(armyShorStr.indexOf(shortName)>-1){
+                            if(armyShorStr.indexOf(shortName)>-1&&armyShortName.length()<shortName.length()){
                                 armyShortName = shortName;
                                 characterName = joinString(armyShorStr.split(shortName));
                                 hasCharacterName = 1;
@@ -462,7 +461,7 @@ public class OCRServiceImpl implements OCRService {
                             String armyShorStr = joinString(wordList.get(j).split("\\["));
                             armyShorStr = joinString(armyShorStr.split("\\]"));
                             for(String shortName :armyShortNameList){
-                                if(armyShorStr.indexOf(shortName)>-1){
+                                if(armyShorStr.indexOf(shortName)>-1&&kmArmyShortName.length()<shortName.length()){
                                     kmArmyShortName = shortName;
                                     kmGameId = joinString(armyShorStr.split(shortName));
                                     hasKMInfo = 1;
@@ -527,14 +526,14 @@ public class OCRServiceImpl implements OCRService {
 
         List<Map<String,String>> detectList = new ArrayList<>();
 
-        String armyShortName = null;//军团简称
+        String armyShortName = "";//军团简称
         for(int i = 0;i<wordList.size();i++){
             if(wordList.get(i).indexOf("[") != -1 || wordList.get(i).indexOf("]") != -1)
             {
                 String armyShorStr = joinString(wordList.get(i).split("\\["));
                 armyShorStr = joinString(armyShorStr.split("\\]"));
                 for(String shortName :armyShortNameList){
-                    if(armyShorStr.indexOf(shortName)>-1){
+                    if(armyShorStr.indexOf(shortName)>-1&&armyShortName.length()<shortName.length()){
                         armyShortName = shortName;
                     }
                 }
@@ -545,14 +544,16 @@ public class OCRServiceImpl implements OCRService {
 
             Boolean isContainArmyShortName = false;
             String characterName = null;//角色名称
-            if(armyShortName==null){
+            if(armyShortName.equals("")){
                 for(String shortName :armyShortNameList){
                     if(wordList.get(i).indexOf(shortName)>-1){
                         String armyShorStr = joinString(wordList.get(i).split("\\["));
                         armyShorStr = joinString(armyShorStr.split("\\]"));
-                        armyShortName = shortName;
-                        characterName = joinString(armyShorStr.split(shortName));
-                        isContainArmyShortName = true;
+                        if(armyShortName.length()<shortName.length()){
+                            armyShortName = shortName;
+                            characterName = joinString(armyShorStr.split(shortName));
+                            isContainArmyShortName = true;
+                        }
                     }
                 }
             }else{
@@ -675,8 +676,6 @@ public class OCRServiceImpl implements OCRService {
 
         return resultMap;
     }
-
-
 
 
     private String joinString(String[] strArr){

@@ -18,6 +18,9 @@ public class Loss {
     private Integer armyId;
 
     @TableField(exist=false)
+    private String unionName;
+
+    @TableField(exist=false)
     private String armyName;
 
     @TableField(exist=false)

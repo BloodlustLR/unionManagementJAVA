@@ -1,9 +1,12 @@
 package org.eu.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 @TableName("payment")
@@ -13,6 +16,11 @@ public class Payment {
     private Integer id;
 
     private String name;
+
+    private Float rate;
+
+    @TableField(exist=false)
+    private List<StandardPayment> standardPaymentList;
 
     private String lossStartTime;
 

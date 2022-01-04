@@ -5,6 +5,7 @@
     <resultMap id="baseResultMap" type="org.eu.entity.Payment">
         <id property="id" column="id"/>
         <result property="name" column="name"/>
+        <result property="rate" column="rate"/>
         <result property="lossStartTime" column="loss_start_time"/>
         <result property="lossEndTime" column="loss_end_time"/>
         <result property="limitArea" column="limit_area"/>
@@ -13,6 +14,19 @@
         <result property="endTime" column="end_time"/>
         <result property="state" column="state"/>
         <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <resultMap id="standardPaymentResultMap" type="org.eu.entity.StandardPayment">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="num" column="num"/>
+        <collection property="relatedShipList" ofType="org.eu.entity.Ship" select="listStandardPaymentShip" column="{standardPaymentId=id}">
+            <id property="id" column="id"/>
+            <result property="name" column="name"/>
+            <result property="type" column="type"/>
+            <result property="level" column="level"/>
+            <result property="price" column="price"/>
+        </collection>
     </resultMap>
 
     <insert id="insertPayment" useGeneratedKeys="true" keyProperty="id" parameterType="org.eu.entity.Payment">
@@ -57,8 +71,23 @@
             psp.payment_id = #{paymentId}
         AND
             sps.state = 'A'
-        AND
-            s.state = 'A'
+    </select>
+
+    <select id="listStandardPaymentShip" resultType="org.eu.entity.Ship">
+        SELECT
+            s.id,
+            s.`name`,
+            s.type,
+            s.`level`,
+            sp.num AS price
+        FROM
+            standard_payment_ship sps
+                LEFT JOIN ship s ON s.id = sps.ship_id
+                LEFT JOIN standard_payment sp ON sp.id = sps.standard_payment_id
+        WHERE
+            sps.standard_payment_id = #{standardPaymentId}
+          AND
+            sps.state = 'A'
     </select>
 
     <select id="getPaymentUnionArmy" resultType="org.eu.entity.Army">
@@ -74,6 +103,19 @@
         WHERE
             l.state = 'A'
           AND l.payment_id = #{paymentId}
+    </select>
+
+    <select id="listPaymentStandardPayment" resultMap="standardPaymentResultMap">
+        SELECT
+            sp.id,
+            sp.`name`,
+            sp.num
+        FROM
+            payment_standard_payment psp
+                LEFT JOIN standard_payment sp ON sp.id = psp.standard_payment_id
+        WHERE
+            psp.state = 'A'
+          AND psp.payment_id = #{paymentId}
     </select>
 
 </mapper>

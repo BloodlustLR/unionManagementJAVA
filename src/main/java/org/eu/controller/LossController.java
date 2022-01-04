@@ -220,6 +220,16 @@ public class LossController {
         return lossService.getPaymentAllTypeLoss(pid);
     }
 
+    @GetMapping("/getPaymentAllArmy")
+    public Map<String,Long> getPaymentAllArmy(@RequestParam("pid") Integer pid){
+        return lossService.getPaymentAllArmy(pid);
+    }
+
+    @GetMapping("/getPaymentAllType")
+    public Map<String,Long> getPaymentAllType(@RequestParam("pid") Integer pid){
+        return lossService.getPaymentAllType(pid);
+    }
+
     @PostMapping("/removeLoss")
     public String removeLoss(@RequestBody String str){
         JSONObject strj = JSONObject.parseObject(str);

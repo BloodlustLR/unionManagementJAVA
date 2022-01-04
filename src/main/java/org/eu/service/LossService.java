@@ -17,7 +17,13 @@ public interface LossService extends IService<Loss> {
 
     Map<String, Long> getPaymentAllTypeLoss(Integer pid);
 
+    Map<String, Long> getPaymentAllArmy(Integer pid);
+
+    Map<String, Long> getPaymentAllType(Integer pid);
+
     Loss selectLossById(String id);
 
     void updateLossById(Loss loss);
+
+
 }

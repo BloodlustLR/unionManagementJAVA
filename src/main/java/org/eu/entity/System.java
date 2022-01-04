@@ -6,22 +6,16 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-@TableName("ship")
+import java.util.List;
+
 @Data
-public class Ship {
+@TableName("`system`")
+public class System {
 
     @TableId(value = "id",type = IdType.AUTO)
     private Integer id;
 
     private String name;
 
-    private String type;
-
-    private Integer level;
-
-    @TableField(exist=false)
-    private Long price;
-
-    private String state;
-
+    private String value;
 }
