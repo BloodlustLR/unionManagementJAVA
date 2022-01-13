@@ -3,13 +3,12 @@ package org.eu.controller;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import org.eu.entity.Army;
-import org.eu.entity.Kill;
-import org.eu.entity.Loss;
-import org.eu.entity.Ship;
+import org.eu.entity.*;
 import org.eu.service.ArmyService;
+import org.eu.service.KillReportService;
 import org.eu.service.KillService;
 import org.eu.service.ShipService;
+import org.eu.util.FastjsonUtil;
 import org.eu.util.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -31,14 +30,38 @@ public class KillController {
     @Autowired
     KillService killService;
 
+    @Autowired
+    KillReportService killReportService;
+
     @PostMapping("/addKill")
     public List<JSONObject> addKill(@RequestBody String str) throws ParseException {
         JSONArray strArr = JSONArray.parseArray(str);
+
+        Boolean hasAchieveKillReportInfo = false;
+        KillReport killReport = null;
+        List<String> limitArea = null;
+        List<String> limitConstellation = null;
+        List<String> limitGalaxy = null;
 
         List<JSONObject> resultList = new ArrayList<>();
         for(int i = 0;i < strArr.size() ; i++){
             JSONObject valueStrj = strArr.getJSONObject(i);
             Integer killReportId = valueStrj.getInteger("killReportId");
+
+
+            if(!hasAchieveKillReportInfo){
+                killReport = killReportService.getById(killReportId);
+                if(killReport.getLimitArea()!=null){
+                    limitArea = FastjsonUtil.convertJSONArrayToTypeList(JSONObject.parseArray(killReport.getLimitArea()),String.class);
+                }
+                if(killReport.getLimitConstellation()!=null){
+                    limitConstellation = FastjsonUtil.convertJSONArrayToTypeList(JSONObject.parseArray(killReport.getLimitConstellation()),String.class);
+                }
+                if(killReport.getLimitGalaxy()!=null){
+                    limitGalaxy = FastjsonUtil.convertJSONArrayToTypeList(JSONObject.parseArray(killReport.getLimitGalaxy()),String.class);
+                }
+                hasAchieveKillReportInfo = true;
+            }
 
             Integer armyId = null;
             String shortName = valueStrj.getString("kmArmyShortName");
@@ -67,6 +90,36 @@ public class KillController {
                 resultList.add(valueStrj);
                 continue;
             }
+
+            String area = valueStrj.getString("area")==""?null:valueStrj.getString("area");
+            String constellation = valueStrj.getString("constellation")==""?null:valueStrj.getString("constellation");
+            String galaxy = valueStrj.getString("galaxy")==""?null:valueStrj.getString("galaxy");
+            Boolean isInclude = false;
+            if(limitArea!=null||limitConstellation!=null||limitGalaxy!=null){
+                if(limitArea!=null&&area!=null){
+                    if(limitArea.indexOf(area)!=-1){
+                        isInclude = true;
+                    }
+                }
+                if(limitConstellation!=null&&constellation!=null){
+                    if(limitConstellation.indexOf(constellation)!=-1){
+                        isInclude = true;
+                    }
+                }
+                if(limitGalaxy!=null&&galaxy!=null){
+                    if(limitGalaxy.indexOf(galaxy)!=-1){
+                        isInclude = true;
+                    }
+                }
+            }else{
+                isInclude = true;
+            }
+
+            if(!isInclude){
+                valueStrj.put("info","地点不合规");
+                resultList.add(valueStrj);
+            }
+
             Calendar cal = Calendar.getInstance();
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
             cal.setTime(sdf.parse(valueStrj.getString("reportTime")));
@@ -84,9 +137,9 @@ public class KillController {
             kill.setArmyId(armyId);
             kill.setShipId(ship.getId());
             kill.setKillTime(valueStrj.getString("reportTime"));
-            kill.setArea(valueStrj.getString("area"));
-            kill.setConstellation(valueStrj.getString("constellation"));
-            kill.setGalaxy(valueStrj.getString("galaxy"));
+            kill.setArea(area);
+            kill.setConstellation(constellation);
+            kill.setGalaxy(galaxy);
             kill.setNum(valueStrj.getLong("money"));
             kill.setImg(valueStrj.getString("img"));
             kill.setIsModify(valueStrj.getBoolean("isModify"));

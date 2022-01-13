@@ -30,9 +30,9 @@
     </resultMap>
 
     <insert id="insertPayment" useGeneratedKeys="true" keyProperty="id" parameterType="org.eu.entity.Payment">
-        INSERT INTO payment ( `name`, loss_start_time, loss_end_time, limit_area, limit_constellation, limit_galaxy, end_time )
+        INSERT INTO payment ( `name`, rate, loss_start_time, loss_end_time, limit_area, limit_constellation, limit_galaxy, end_time )
         VALUES
-            (#{name},#{lossStartTime},#{lossEndTime},#{limitArea},#{limitConstellation},#{limitGalaxy},#{endTime});
+            (#{name},#{rate},#{lossStartTime},#{lossEndTime},#{limitArea},#{limitConstellation},#{limitGalaxy},#{endTime});
     </insert>
 
     <select id="pagePayment" resultMap="baseResultMap">

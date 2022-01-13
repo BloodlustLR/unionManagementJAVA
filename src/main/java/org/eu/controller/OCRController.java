@@ -22,10 +22,14 @@ public class OCRController {
     OCRService ocrService;
 
 
-    @PostMapping("/detectPic")
-    public Map<String,Object> detectPic(@RequestParam("file") MultipartFile multipartFile) throws IOException {
+    @PostMapping("/detectLossPic")
+    public Map<String,Object> detectLossPic(@RequestParam("file") MultipartFile multipartFile) throws IOException {
+        return ocrService.detectPic(multipartFile,"loss");
+    }
 
-        return ocrService.detectPic(multipartFile);
+    @PostMapping("/detectKillPic")
+    public Map<String,Object> detectKillPic(@RequestParam("file") MultipartFile multipartFile) throws IOException {
+        return ocrService.detectPic(multipartFile,"kill");
     }
 
 }

@@ -5,12 +5,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.eu.entity.Army;
 import org.eu.entity.Loss;
+import org.eu.entity.Payment;
 import org.eu.entity.Ship;
 import org.eu.mapper.ShipMapper;
 import org.eu.service.ArmyService;
 import org.eu.service.LossService;
 import org.eu.service.PaymentService;
 import org.eu.service.ShipService;
+import org.eu.util.FastjsonUtil;
 import org.eu.util.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -41,16 +43,31 @@ public class LossController {
 
         List<JSONObject> resultList = new ArrayList<>();
 
-        Boolean hasAchieveShipList = false;
+        Boolean hasAchievePaymentInfo = false;
         List<Ship> shipList = new ArrayList<>();
+        Payment payment = null;
+        List<String> limitArea = null;
+        List<String> limitConstellation = null;
+        List<String> limitGalaxy = null;
+
 
         for(int i = 0;i < strArr.size() ; i++) {
             JSONObject valueStrj = strArr.getJSONObject(i);
             Integer paymentId = valueStrj.getInteger("paymentId");
 
-            if(!hasAchieveShipList){
+            if(!hasAchievePaymentInfo){
                 shipList = paymentService.listPaymentShip(paymentId);
-                hasAchieveShipList = true;
+                payment = paymentService.getById(paymentId);
+                if(payment.getLimitArea()!=null){
+                    limitArea = FastjsonUtil.convertJSONArrayToTypeList(JSONObject.parseArray(payment.getLimitArea()),String.class);
+                }
+                if(payment.getLimitConstellation()!=null){
+                    limitConstellation = FastjsonUtil.convertJSONArrayToTypeList(JSONObject.parseArray(payment.getLimitConstellation()),String.class);
+                }
+                if(payment.getLimitGalaxy()!=null){
+                    limitGalaxy = FastjsonUtil.convertJSONArrayToTypeList(JSONObject.parseArray(payment.getLimitGalaxy()),String.class);
+                }
+                hasAchievePaymentInfo = true;
             }
 
             Integer armyId = null;
@@ -93,6 +110,35 @@ public class LossController {
                 continue;
             }
 
+            String area = valueStrj.getString("area")==""?null:valueStrj.getString("area");
+            String constellation = valueStrj.getString("constellation")==""?null:valueStrj.getString("constellation");
+            String galaxy = valueStrj.getString("galaxy")==""?null:valueStrj.getString("galaxy");
+            Boolean isInclude = false;
+            if(limitArea!=null||limitConstellation!=null||limitGalaxy!=null){
+                if(limitArea!=null&&area!=null){
+                    if(limitArea.indexOf(area)!=-1){
+                        isInclude = true;
+                    }
+                }
+                if(limitConstellation!=null&&constellation!=null){
+                    if(limitConstellation.indexOf(constellation)!=-1){
+                        isInclude = true;
+                    }
+                }
+                if(limitGalaxy!=null&&galaxy!=null){
+                    if(limitGalaxy.indexOf(galaxy)!=-1){
+                        isInclude = true;
+                    }
+                }
+            }else{
+                isInclude = true;
+            }
+
+            if(!isInclude){
+                valueStrj.put("info","地点不合规");
+                resultList.add(valueStrj);
+            }
+
             Calendar cal = Calendar.getInstance();
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
             cal.setTime(sdf.parse(valueStrj.getString("reportTime")));
@@ -110,9 +156,9 @@ public class LossController {
             loss.setArmyId(armyId);
             loss.setShipId(ship.getId());
             loss.setLossTime(valueStrj.getString("reportTime"));
-            loss.setArea(valueStrj.getString("area"));
-            loss.setConstellation(valueStrj.getString("constellation"));
-            loss.setGalaxy(valueStrj.getString("galaxy"));
+            loss.setArea(area);
+            loss.setConstellation(constellation);
+            loss.setGalaxy(galaxy);
             loss.setNum(valueStrj.getLong("money"));
             loss.setKmShip(valueStrj.getString("kmShip"));
             loss.setHighAtkShip(valueStrj.getString("highATKShip"));

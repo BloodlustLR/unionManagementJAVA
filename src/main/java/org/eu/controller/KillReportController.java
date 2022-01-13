@@ -48,7 +48,7 @@ public class KillReportController {
     }
 
     @GetMapping("/getKillReportInfo")
-    public KillReport getPaymentInfo(@RequestParam("pid") Integer pid){
+    public KillReport getKillReportInfo(@RequestParam("pid") Integer pid){
         return killReportService.getById(pid);
     }
 
