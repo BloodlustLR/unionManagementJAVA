@@ -8,6 +8,7 @@ import org.eu.entity.Payment;
 import org.eu.entity.Union;
 import org.eu.service.KillReportService;
 import org.eu.service.KillService;
+import org.eu.service.UnionService;
 import org.eu.util.DateFormatUtil;
 import org.eu.util.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("/killReport")
 public class KillReportController {
+
+    @Autowired
+    UnionService unionService;
 
     @Autowired
     KillReportService killReportService;
@@ -55,13 +59,24 @@ public class KillReportController {
     @GetMapping("/getKillReportTotal")
     public Map<String,Object> getKillReportTotal(@RequestParam("pid") Integer pid){
         Map<String,Object> resultMap = new HashMap<>();
-        resultMap.put("killTotal",killService.getKillTotal(pid));
+        KillReport killReport = killReportService.getById(pid);
+        List<Union> unionList = unionService.getAllUnionArmy();
+        resultMap.put("killTotal",killService.getKillTotal(killReport,unionList));
         return resultMap;
     }
 
     @GetMapping("/getKillReportUnionArmy")
     public List<Union> getKillReportUnionArmy(@RequestParam("pid") Integer pid){
-        return killService.getKillReportUnionArmy(pid);
+        KillReport killReport = killReportService.getById(pid);
+        List<Union> unionList = unionService.getAllUnionArmy();
+        return killService.getKillReportUnionArmy(killReport,unionList);
+    }
+
+    @GetMapping("/getKillReportUnsignedArmy")
+    public List<String> getKillReportUnsignedArmy(@RequestParam("pid") Integer pid){
+        KillReport killReport = killReportService.getById(pid);
+        List<Union> unionList = unionService.getAllUnionArmy();
+        return killService.getKillReportUnsignedArmy(killReport,unionList);
     }
 
     @PostMapping("/addKillReport")
@@ -72,8 +87,10 @@ public class KillReportController {
 
         String name = strj.getString("name");
         String endTime = DateFormatUtil.formatSecond(DateFormatUtil.parseDateByUTC(strj.getString("endTime")));
+        Boolean needDetail = strj.getBoolean("needDetail");
         killReport.setName(name);
         killReport.setEndTime(endTime);
+        killReport.setNeedDetail(needDetail);
 
         Boolean hasLimitTime = strj.getBoolean("hasLimitTime");
         if(hasLimitTime){
@@ -83,6 +100,19 @@ public class KillReportController {
             killReport.setKillStartTime(lossStartTime);
             killReport.setKillEndTime(lossEndTime);
         }
+
+        Boolean hasTargetUnion = strj.getBoolean("hasTargetUnion");
+        if(hasTargetUnion){
+            String targetUnion = strj.getString("targetUnion");
+            killReport.setTargetUnion(targetUnion);
+        }
+
+        Boolean hasTargetArmy = strj.getBoolean("hasTargetArmy");
+        if(hasTargetArmy){
+            String targetArmyStr = strj.getString("targetArmy");
+            killReport.setTargetArmy(targetArmyStr);
+        }
+
         Boolean hasLimitArea = strj.getBoolean("hasLimitArea");
         if(hasLimitArea){
             String limitAreaStr = strj.getString("limitAreaList");
@@ -115,9 +145,11 @@ public class KillReportController {
         Integer id = strj.getInteger("id");
         String name = strj.getString("name");
         String endTime = DateFormatUtil.formatSecond(DateFormatUtil.parseDateByUTC(strj.getString("endTime")));
+        Boolean needDetail = strj.getBoolean("needDetail");
         killReport.setId(id);
         killReport.setName(name);
         killReport.setEndTime(endTime);
+        killReport.setNeedDetail(needDetail);
 
         Boolean hasLimitTime = strj.getBoolean("hasLimitTime");
         if(hasLimitTime){
@@ -126,26 +158,52 @@ public class KillReportController {
             String lossEndTime = DateFormatUtil.formatSecond(DateFormatUtil.parseDateByUTC(limitTime.get(1)));
             killReport.setKillStartTime(lossStartTime);
             killReport.setKillEndTime(lossEndTime);
+        }else{
+            killReport.setKillStartTime(null);
+            killReport.setKillEndTime(null);
         }
+
+        Boolean hasTargetUnion = strj.getBoolean("hasTargetUnion");
+        if(hasTargetUnion){
+            String targetUnion = strj.getString("targetUnion");
+            killReport.setTargetUnion(targetUnion);
+        }else{
+            killReport.setTargetUnion(null);
+        }
+
+        Boolean hasTargetArmy = strj.getBoolean("hasTargetArmy");
+        if(hasTargetArmy){
+            String targetArmyStr = strj.getString("targetArmy");
+            killReport.setTargetArmy(targetArmyStr);
+        }else{
+            killReport.setTargetArmy(null);
+        }
+
         Boolean hasLimitArea = strj.getBoolean("hasLimitArea");
         if(hasLimitArea){
             String limitAreaStr = strj.getString("limitAreaList");
             killReport.setLimitArea(limitAreaStr);
+        }else{
+            killReport.setLimitArea(null);
         }
 
         Boolean hasLimitConstellation = strj.getBoolean("hasLimitConstellation");
         if(hasLimitConstellation){
             String limitConstellationStr = strj.getString("limitConstellationList");
             killReport.setLimitConstellation(limitConstellationStr);
+        }else{
+            killReport.setLimitConstellation(null);
         }
 
         Boolean hasLimitGalaxy = strj.getBoolean("hasLimitGalaxy");
         if(hasLimitGalaxy){
             String limitGalaxyStr = strj.getString("limitGalaxyList");
             killReport.setLimitGalaxy(limitGalaxyStr);
+        }else{
+            killReport.setLimitGalaxy(null);
         }
 
-        Boolean flag = killReportService.updateById(killReport);
+        Boolean flag =  killReportService.updateById(killReport);
 
         return ResponseUtil.success(flag?"success":"fail");
     }

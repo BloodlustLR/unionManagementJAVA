@@ -110,9 +110,9 @@ public class LossController {
                 continue;
             }
 
-            String area = valueStrj.getString("area")==""?null:valueStrj.getString("area");
-            String constellation = valueStrj.getString("constellation")==""?null:valueStrj.getString("constellation");
-            String galaxy = valueStrj.getString("galaxy")==""?null:valueStrj.getString("galaxy");
+            String area = valueStrj.getString("area").equals("")?null:valueStrj.getString("area");
+            String constellation = valueStrj.getString("constellation").equals("")?null:valueStrj.getString("constellation");
+            String galaxy = valueStrj.getString("galaxy").equals("")?null:valueStrj.getString("galaxy");
             Boolean isInclude = false;
             if(limitArea!=null||limitConstellation!=null||limitGalaxy!=null){
                 if(limitArea!=null&&area!=null){

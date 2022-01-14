@@ -17,6 +17,8 @@ public class Union {
 
     private String name;
 
+    private String shortName;
+
     @TableField(exist=false)
     private List<Army> armyList;
 

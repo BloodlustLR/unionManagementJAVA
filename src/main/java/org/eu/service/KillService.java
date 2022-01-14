@@ -2,6 +2,7 @@ package org.eu.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.eu.entity.Kill;
+import org.eu.entity.KillReport;
 import org.eu.entity.Loss;
 import org.eu.entity.Union;
 
@@ -13,13 +14,15 @@ public interface KillService extends IService<Kill> {
 
     void updateKillById(Kill kill);
 
-    Long getKillTotal(Integer pid);
+    Long getKillTotal(KillReport killReport,List<Union> unionList);
 
-    List<Union> getKillReportUnionArmy(Integer pid);
+    List<Union> getKillReportUnionArmy(KillReport killReport, List<Union> unionList);
 
-    List<Kill> getKillReportArmyKill(Integer killReportId, Integer armyId);
+    List<Kill> getKillReportArmyKill(KillReport killReport, List<Union> unionList, Integer armyId);
 
-    Map<String, Long> getAllArmyRank(Integer pid);
+    Map<String, Long> getAllArmyRank(KillReport killReport, List<Union> unionList);
 
-    Map<String, Long> getAllAreaKill(Integer pid);
+    Map<String, Long> getAllAreaKill(KillReport killReport, List<Union> unionList);
+
+    List<String> getKillReportUnsignedArmy(KillReport killReport, List<Union> unionList);
 }

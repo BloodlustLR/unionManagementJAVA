@@ -10,11 +10,12 @@
             id = #{id}
     </select>
 
-    <select id="getKillReportUnionArmy" resultType="org.eu.entity.Army">
-        SELECT DISTINCT
-            a.id,
-            a.`name`,
-            a.short_name AS shortName,
+    <select id="getKillReportUnionArmy" resultType="org.eu.entity.Kill">
+        SELECT
+            a.id AS armyId,
+            a.`name` AS armyName,
+            k.killed_army AS killedArmy,
+            a.short_name AS armyShortName,
             u.`name` AS unionName
         FROM
             `kill` k
@@ -28,6 +29,7 @@
         SELECT
             k.id,
             s.name AS shipName,
+            k.killed_army AS killedArmy,
             k.area,
             k.constellation,
             k.galaxy,
@@ -49,6 +51,7 @@
             k.army_id AS armyId,
             a.`name` AS armyName,
             a.short_name AS armyShortName,
+            k.killed_army AS killedArmy,
             k.num
         FROM
             `kill` k
@@ -63,6 +66,7 @@
         SET kill_report_id = #{killReportId},
             army_id = #{armyId},
             ship_id = #{shipId},
+            killed_army = #{killedArmy},
             kill_time = #{killTime},
             area = #{area},
             constellation = #{constellation},

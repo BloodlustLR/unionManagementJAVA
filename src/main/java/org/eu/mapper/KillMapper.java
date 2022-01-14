@@ -14,7 +14,7 @@ public interface KillMapper extends BaseMapper<Kill> {
 
     void updateKillById(Kill kill);
 
-    List<Army> getKillReportUnionArmy(Integer pid);
+    List<Kill> getKillReportUnionArmy(Integer pid);
 
     List<Kill> getKillReportArmyKill(Integer killReportId, Integer armyId);
 

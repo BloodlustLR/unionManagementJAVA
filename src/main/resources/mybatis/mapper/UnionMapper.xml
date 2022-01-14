@@ -5,6 +5,7 @@
     <resultMap id="baseResultMap" type="org.eu.entity.Union">
         <id property="id" column="id"/>
         <result property="name" column="name"/>
+        <result property="shortName" column="short_name"/>
         <result property="state" column="state"/>
         <collection property="armyList" ofType="org.eu.entity.Army" select="org.eu.mapper.ArmyMapper.listArmyByUnionId" column="id">
             <id property="id" column="id"/>
@@ -17,7 +18,8 @@
     <select id="getAllUnionArmy" resultMap="baseResultMap">
         SELECT
             id,
-            `name`
+            `name`,
+            short_name
         FROM
             `union`
         WHERE

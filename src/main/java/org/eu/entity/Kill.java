@@ -1,5 +1,6 @@
 package org.eu.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -14,6 +15,9 @@ public class Kill {
 
     private Integer killReportId;
 
+    @TableField(exist=false)
+    private String unionName;
+
     private Integer armyId;
 
     @TableField(exist=false)
@@ -21,6 +25,8 @@ public class Kill {
 
     @TableField(exist=false)
     private String armyShortName;
+
+    private String killedArmy;
 
     private Integer shipId;
 

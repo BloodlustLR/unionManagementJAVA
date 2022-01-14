@@ -152,23 +152,33 @@ public class PaymentController {
             String lossEndTime = DateFormatUtil.formatSecond(DateFormatUtil.parseDateByUTC(limitTime.get(1)));
             payment.setLossStartTime(lossStartTime);
             payment.setLossEndTime(lossEndTime);
+        }else{
+            payment.setLossStartTime(null);
+            payment.setLossEndTime(null);
         }
+
         Boolean hasLimitArea = strj.getBoolean("hasLimitArea");
         if(hasLimitArea){
             String limitAreaStr = strj.getString("limitAreaList");
             payment.setLimitArea(limitAreaStr);
+        }else{
+            payment.setLimitArea(null);
         }
 
         Boolean hasLimitConstellation = strj.getBoolean("hasLimitConstellation");
         if(hasLimitConstellation){
             String limitConstellationStr = strj.getString("limitConstellationList");
             payment.setLimitConstellation(limitConstellationStr);
+        }else{
+            payment.setLimitConstellation(null);
         }
 
         Boolean hasLimitGalaxy = strj.getBoolean("hasLimitGalaxy");
         if(hasLimitGalaxy){
             String limitGalaxyStr = strj.getString("limitGalaxyList");
             payment.setLimitGalaxy(limitGalaxyStr);
+        }else{
+            payment.setLimitGalaxy(null);
         }
 
         List<Integer> standardList = JSONObject.parseArray(strj.getString("standardList"),Integer.class);

@@ -871,6 +871,20 @@ public class OCRServiceImpl implements OCRService {
                 }
             }
 
+            if(i<12){
+                if(hasCharacterName == 0&&(wordList.get(i).indexOf("[") != -1 || wordList.get(i).indexOf("]") != -1))
+                {
+                    if(wordList.get(i).indexOf("损失报告") == -1 && wordList.get(i).indexOf("击毁报告") == -1 ){
+                        String armyShorStr = joinString(wordList.get(i).split("\\["));
+                        if(armyShorStr.indexOf("]")>-1){
+                            Integer lastIndex = armyShorStr.indexOf("]");
+                            armyShortName = armyShorStr.substring(0,lastIndex);
+                        }
+                        hasCharacterName = 1;
+                    }
+                }
+            }
+
             if(wordList.get(i).indexOf("其他") != -1 ){
 //                if(wordList.get(i+1).indexOf("[") != -1 && wordList.get(i+1).indexOf("]") != -1)
 //                {

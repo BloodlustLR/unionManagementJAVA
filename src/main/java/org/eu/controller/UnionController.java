@@ -42,6 +42,7 @@ public class UnionController {
         JSONObject strj = JSONObject.parseObject(str);
 
         Union union = new Union();
+        union.setShortName(strj.getString("shortName"));
         union.setName(strj.getString("name"));
 
         Boolean result = unionService.save(union);
@@ -55,6 +56,7 @@ public class UnionController {
 
         Union union = new Union();
         union.setId(strj.getInteger("unionId"));
+        union.setShortName(strj.getString("shortName"));
         union.setName(strj.getString("name"));
 
         Boolean result = unionService.updateById(union);

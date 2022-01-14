@@ -4,10 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.eu.entity.*;
-import org.eu.service.ArmyService;
-import org.eu.service.KillReportService;
-import org.eu.service.KillService;
-import org.eu.service.ShipService;
+import org.eu.service.*;
 import org.eu.util.FastjsonUtil;
 import org.eu.util.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +29,9 @@ public class KillController {
 
     @Autowired
     KillReportService killReportService;
+
+    @Autowired
+    UnionService unionService;
 
     @PostMapping("/addKill")
     public List<JSONObject> addKill(@RequestBody String str) throws ParseException {
@@ -91,9 +91,9 @@ public class KillController {
                 continue;
             }
 
-            String area = valueStrj.getString("area")==""?null:valueStrj.getString("area");
-            String constellation = valueStrj.getString("constellation")==""?null:valueStrj.getString("constellation");
-            String galaxy = valueStrj.getString("galaxy")==""?null:valueStrj.getString("galaxy");
+            String area = valueStrj.getString("area").equals("")?null:valueStrj.getString("area");
+            String constellation = valueStrj.getString("constellation").equals("")?null:valueStrj.getString("constellation");
+            String galaxy = valueStrj.getString("galaxy").equals("")?null:valueStrj.getString("galaxy");
             Boolean isInclude = false;
             if(limitArea!=null||limitConstellation!=null||limitGalaxy!=null){
                 if(limitArea!=null&&area!=null){
@@ -136,6 +136,7 @@ public class KillController {
             kill.setKillReportId(killReportId);
             kill.setArmyId(armyId);
             kill.setShipId(ship.getId());
+            kill.setKilledArmy(valueStrj.getString("armyShortName").equals("")?null:valueStrj.getString("armyShortName"));
             kill.setKillTime(valueStrj.getString("reportTime"));
             kill.setArea(area);
             kill.setConstellation(constellation);
@@ -162,19 +163,28 @@ public class KillController {
 
         Integer armyId = strj.getInteger("armyId");
         Integer killReportId = strj.getInteger("killReportId");
-        return killService.getKillReportArmyKill(killReportId,armyId);
+
+        KillReport killReport = killReportService.getById(killReportId);
+        List<Union> unionList = unionService.getAllUnionArmy();
+
+        return killService.getKillReportArmyKill(killReport, unionList, armyId);
     }
 
     @GetMapping("/getAllArmyRank")
     public Map<String,Long> getAllArmyRank(@RequestParam("pid") Integer pid){
-        return killService.getAllArmyRank(pid);
+
+        KillReport killReport = killReportService.getById(pid);
+        List<Union> unionList = unionService.getAllUnionArmy();
+
+        return killService.getAllArmyRank(killReport,unionList);
     }
 
     @GetMapping("/getAllAreaKill")
     public Map<String,Long> getAllAreaKill(@RequestParam("pid") Integer pid){
-        return killService.getAllAreaKill(pid);
+        KillReport killReport = killReportService.getById(pid);
+        List<Union> unionList = unionService.getAllUnionArmy();
+        return killService.getAllAreaKill(killReport,unionList);
     }
-
 
     @PostMapping("/removeKill")
     public String removeLoss(@RequestBody String str){

@@ -1,9 +1,6 @@
 package org.eu.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.util.List;
@@ -22,14 +19,19 @@ public class Payment {
     @TableField(exist=false)
     private List<StandardPayment> standardPaymentList;
 
+    @TableField(value = "loss_start_time", updateStrategy = FieldStrategy.IGNORED)
     private String lossStartTime;
 
+    @TableField(value = "loss_end_time", updateStrategy = FieldStrategy.IGNORED)
     private String lossEndTime;
 
+    @TableField(value = "limit_area", updateStrategy = FieldStrategy.IGNORED)
     private String limitArea;
 
+    @TableField(value = "limit_constellation", updateStrategy = FieldStrategy.IGNORED)
     private String limitConstellation;
 
+    @TableField(value = "limit_galaxy", updateStrategy = FieldStrategy.IGNORED)
     private String limitGalaxy;
 
     private String endTime;
